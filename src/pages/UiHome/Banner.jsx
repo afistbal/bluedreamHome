@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Carousel } from "antd";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-import styles from "../styles/Banner.module.css";
+import styles from "./Home.module.css";
 
 const banners = [
   "https://scdn-img.vnggames.com/mainsite/images/TQHT-homepage-desktop-1650x928.jpg?qlty=100&size=750&iswebp=1",
