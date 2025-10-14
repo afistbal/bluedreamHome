@@ -1,0 +1,121 @@
+.pack-section {
+  background: #f9f9f9;
+  border-radius: 12px;
+  padding: 24px 28px;
+}
+
+.hot-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #ff7a00;
+}
+
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.pack-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid transparent;
+}
+
+.pack-card.active {
+  border-color: #ff7a00;
+}
+
+.pack-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.pack-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+}
+
+.pack-info {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pack-info h4 {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.pack-info p {
+  color: #888;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.pack-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.pack-price {
+  font-weight: 700;
+  color: #ff7a00;
+}
+
+.add-btn {
+  background: #ff7a00 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.add-btn:hover {
+  opacity: 0.9;
+}
+
+/* 数量控制区域 */
+.qty-btns {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.qty-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-weight: 600;
+  background: #fff;
+  transition: all 0.2s;
+}
+
+.qty-btn:hover {
+  border-color: #ff7a00;
+  color: #ff7a00;
+}
+
+.qty-btns span {
+  min-width: 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+}

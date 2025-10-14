@@ -1,0 +1,57 @@
+.vng-banner {
+  width: min(1180px, 100%);
+  margin: 20px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* 每张图片 */
+.banner-slide {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  overflow: hidden;
+}
+.banner-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* 轮播点 */
+.vng-carousel-dots {
+  bottom: 12px !important;
+}
+.vng-carousel-dots li {
+  width: 10px !important;
+  height: 10px !important;
+  margin: 0 4px !important;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transition: all 0.3s;
+}
+.vng-carousel-dots li.slick-active {
+  background: #f05c22 !important; /* 橙色 */
+  width: 18px !important;
+  border-radius: 10px;
+}
+
+/* 左右切换箭头隐藏 */
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  display: none !important;
+}
+
+/* 自适应 */
+@media (max-width: 992px) {
+  .banner-slide {
+    height: 320px;
+  }
+}
+@media (max-width: 576px) {
+  .banner-slide {
+    height: 220px;
+  }
+}

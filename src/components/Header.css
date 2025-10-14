@@ -1,0 +1,155 @@
+.vng-header {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  height: 70px;
+  display: flex;
+  align-items: center;
+}
+
+.vng-header-inner {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Logo */
+.vng-logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+/* Search input */
+.vng-search {
+  flex: 1;
+  max-width: 540px;
+}
+.vng-search-input {
+  height: 40px;
+  border-radius: 8px !important;
+  background-color: #f3f4f6 !important;
+  border: 1px solid #e0e0e0 !important;
+}
+.vng-search-input:hover,
+.vng-search-input:focus {
+  border-color: #f05c22 !important;
+  box-shadow: 0 0 0 2px rgba(240, 92, 34, 0.15) !important;
+}
+
+/* Right actions */
+.vng-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Icons */
+.vng-icon-btn,
+.vng-lang-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #555;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+.vng-icon-btn:hover,
+.vng-lang-btn:hover {
+  color: #f05c22;
+  border-color: #f05c22;
+}
+
+/* Language */
+.vng-lang-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 60px;
+}
+.lang-text {
+  font-weight: 500;
+  color: #333;
+}
+
+/* Login */
+.vng-login-btn {
+  background: #f05c22 !important;
+  border: none !important;
+  font-weight: 600 !important;
+  height: 40px !important;
+  border-radius: 8px !important;
+  padding: 0 18px !important;
+}
+.vng-login-btn:hover {
+  opacity: 0.9;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .lang-text {
+    display: none;
+  }
+}
+
+/* 搜索下拉 */
+.vng-search-select {
+  width: 100%;
+  max-width: 520px;
+}
+.vng-search-select .ant-select-selector {
+  height: 40px !important;
+  border-radius: 8px !important;
+  border: 1px solid #e0e0e0 !important;
+  background: #fff !important;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+}
+.vng-search-select .ant-select-selection-placeholder {
+  color: #aaa;
+}
+.vng-search-select .ant-select-selector:hover {
+  border-color: #f05c22 !important;
+}
+.vng-search-select.ant-select-focused .ant-select-selector {
+  border-color: #f05c22 !important;
+  box-shadow: 0 0 0 2px rgba(240, 92, 34, 0.15);
+}
+
+/* 下拉列表样式 */
+.ant-select-item-option-content .search-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 0;
+}
+.search-item img {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+.search-item-info {
+  display: flex;
+  flex-direction: column;
+}
+.search-item-info .name {
+  font-weight: 500;
+  color: #333;
+}
+.search-item-info .meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+}
+.search-item-info .region {
+  font-size: 12px;
+  color: #999;
+}
