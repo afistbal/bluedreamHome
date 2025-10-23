@@ -1,0 +1,124 @@
+.notice-bar {
+  background: #fde68a;
+  color: #111827;
+  text-align: center;
+  font-size: 13px;
+  padding: 6px;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.checkout-container {
+  padding: 16px;
+  color: #333;
+  font-family: "Inter", sans-serif;
+}
+
+.success-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #16a34a;
+  margin-bottom: 4px;
+}
+
+.checkout-box {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.qr-box,
+.bank-box {
+  flex: 1;
+  min-width: 320px;
+  padding: 16px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.bank-box {
+  border-right: none;
+  background-color: #fafafa;
+}
+
+.qr-image {
+  width: 230px;
+  height: 230px;
+  object-fit: contain;
+  margin: 12px auto;
+  display: block;
+}
+
+.download-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 14px;
+}
+.download-btn:hover {
+  background-color: #eff6ff;
+}
+
+.status {
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.bank-logo {
+  max-height: 40px;
+  display: block;
+  margin: 8px auto;
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.info-table td {
+  padding: 6px 8px;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.note {
+  background-color: #f9fafb;
+  padding: 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  margin-top: 8px;
+  color: #374151;
+}
+
+.order-info {
+  margin-top: 24px;
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.loading-box {
+  text-align: center;
+  padding: 60px 0;
+}
+
+/* 📱 H5 */
+@media (max-width: 768px) {
+  .checkout-box {
+    flex-direction: column;
+  }
+  .qr-box,
+  .bank-box {
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .order-info {
+    margin-top: 12px;
+  }
+}

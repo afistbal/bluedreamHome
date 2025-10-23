@@ -1,95 +1,143 @@
-import React, { useState } from "react";
-import { Button } from "antd";
-import "../styles/PaymentPacks.css";
+import React from "react";
+import { Button, Tooltip, Switch } from "antd";
+import { useTranslation } from "react-i18next";
+import styles from "../styles/PaymentPacks.module.css";
 
 const mockPacks = [
   {
-    id: 1,
-    name: "Gói Chiêu Mộ Bất Ngờ",
-    desc: "Ưu đãi: Giảm 50% + nhận quà tiêu lần đầu",
-    price: 5000,
-    image:
-      "https://stc-sot.vcdn.vn/ws-content/uploads//GTAPPTEST-ZINGPAY-1-LIVE/image/product/1429910654359678976.png",
+    id: "pirate.pack.diamond.1",
+    name: "Gói 60 Kim Cương",
+    desc: "Gói 60 Kim Cương",
+    price: 20000,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
   },
   {
-    id: 2,
-    name: "Gói Chiêu Mộ Thú Vị",
-    desc: "Ưu đãi: Giảm 50% + nhận quà tiêu lần đầu",
-    price: 10000,
-    image:
-      "https://stc-sot.vcdn.vn/ws-content/uploads//GTAPPTEST-ZINGPAY-1-LIVE/image/product/1429910654359678976.png",
+    id: "pirate.pack.diamond.2",
+    name: "Gói 150 Kim Cương",
+    desc: "Gói 150 Kim Cương",
+    price: 50000,
+    sale: true,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
   },
   {
-    id: 3,
-    name: "Gói 65 Huyền Tinh",
-    desc: "Ưu đãi: +10 Áo Tinh",
-    price: 25000,
-    image:
-      "https://stc-sot.vcdn.vn/ws-content/uploads//GTAPPTEST-ZINGPAY-1-LIVE/image/product/1429910654359678976.png",
+    id: "pirate.pack.diamond.4",
+    name: "Gói 300 Kim Cương",
+    desc: "Gói 300 Kim Cương",
+    price: 100000,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+  },
+  {
+    id: "pirate.pack.diamond.20",
+    name: "Gói 1582 Kim Cương",
+    desc: "Gói 1502 Kim Cương + Bonus 81 Kim Cương",
+    price: 500000,
+    sale: true,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+  },
+  {
+    id: "pirate.pack.diamond.50",
+    name: "Gói 3226 Kim Cương",
+    desc: "Gói 3003 Kim Cương + Bonus 223 Kim Cương",
+    price: 1000000,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+  },
+  {
+    id: "pirate.pack.diamond.100",
+    name: "Gói 16667 Kim Cương",
+    desc: "Gói 15015 Kim Cương + Bonus 1652 Kim Cương",
+    price: 5000000,
+    sale: true,
+    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
   },
 ];
 
-export default function PaymentPacks() {
-  const [selected, setSelected] = useState([]);
-
-  const addPack = (pack) => {
-    setSelected((prev) => {
-      const exist = prev.find((p) => p.id === pack.id);
-      if (exist)
-        return prev.map((p) =>
-          p.id === pack.id ? { ...p, qty: p.qty + 1 } : p
-        );
-      return [...prev, { ...pack, qty: 1 }];
-    });
-  };
-
-  const reducePack = (id) =>
-    setSelected((prev) =>
-      prev
-        .map((p) =>
-          p.id === id ? { ...p, qty: Math.max(p.qty - 1, 0) } : p
-        )
-        .filter((p) => p.qty > 0)
-    );
+export default function PaymentPacks({
+  selected = [],
+  onAdd,
+  onReduce,
+  multiBuy = false,
+  onToggleMultiBuy,
+  maxQtyPerItem = 8,
+}) {
+  const { t } = useTranslation();
+  const getQty = (id) => selected.find((p) => p.id === id)?.qty || 0;
 
   return (
-    <div className="pack-section">
-      <h2 className="section-title">2. Chọn gói</h2>
-
-      <div className="hot-bar">
-        <span>🔥 HOT ITEMS</span>
-        <Button size="small" type="default">
-          Mua nhiều Gói nạp
-        </Button>
+    <section className={styles.section}>
+      <div className={styles.headerRow}>
+        <div className={styles.headerLeft}>
+          <h2 className={styles.title}>📜 Chọn gói</h2>
+          <span className={styles.hot}>🔥 Danh sách gói</span>
+        </div>
+        {/* <div className={styles.headerRight}>
+          <span className={styles.switchLabel}>Mua nhiều Gói nạp</span>
+          <Switch
+            checked={multiBuy}
+            onChange={onToggleMultiBuy}
+            size="small"
+            className={styles.switchBtn}
+          />
+        </div> */}
       </div>
 
-      <div className="pack-grid">
-        {mockPacks.map((pack) => (
-          <div className="pack-card" key={pack.id}>
-            <img src={pack.image} alt={pack.name} />
-            <div className="pack-info">
-              <h4>{pack.name}</h4>
-              <p>{pack.desc}</p>
-              <div className="pack-bottom">
-                <span className="pack-price">
-                  {pack.price.toLocaleString()} VND
-                </span>
-                <div className="qty-btns">
-                  <Button size="small" onClick={() => reducePack(pack.id)}>
-                    -
-                  </Button>
-                  <span>
-                    {selected.find((p) => p.id === pack.id)?.qty || 0}
+      <div className={styles.grid}>
+        {mockPacks.map((pack) => {
+          const qty = getQty(pack.id);
+          const maxed = qty >= maxQtyPerItem;
+          return (
+            <article
+              key={pack.id}
+              className={`${styles.card} ${qty > 0 ? styles.active : ""}`}
+            >
+              {pack.sale && <div className={styles.saleTag}>ƯU ĐÃI 50%</div>}
+              <div className={styles.imageWrap}>
+                <img src={pack.image} alt={pack.name} />
+              </div>
+
+              <div className={styles.info}>
+                <h4>{pack.name}</h4>
+                <p>{pack.desc}</p>
+                <div className={styles.bottom}>
+                  <span className={styles.price}>
+                    {pack.price.toLocaleString()} VND
                   </span>
-                  <Button size="small" onClick={() => addPack(pack)}>
-                    +
-                  </Button>
+                  <div className={styles.qtyBtns}>
+                    {qty > 0 ? (
+                      <>
+                        <Button
+                          size="small"
+                          className={styles.qtyBtn}
+                          onClick={() => onReduce(pack.id)}
+                        >
+                          -
+                        </Button>
+                        <span className={styles.priceNum}>{qty}</span>
+                        <Tooltip title={maxed ? t("tips.reach_item_limit") : ""}>
+                          <Button
+                            size="small"
+                            className={styles.qtyBtn}
+                            onClick={() => onAdd(pack)}
+                          >
+                            +
+                          </Button>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      <Button
+                        size="small"
+                        className={styles.addBtn}
+                        onClick={() => onAdd(pack)}
+                      >
+                        +
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
+            </article>
+          );
+        })}
       </div>
-    </div>
+    </section>
   );
 }

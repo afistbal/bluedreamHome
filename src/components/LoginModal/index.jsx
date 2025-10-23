@@ -1,107 +1,281 @@
-import React from "react";
-import { Modal, Button, Space } from "antd";
-import {
-  loginWithGoogle,
-  loginWithFacebook,
-  loginWithApple,
-} from "../../services/loginService";
+import React, { useState, useEffect } from "react";
+import { Modal, Button, message } from "antd";
 import {
   GoogleOutlined,
   AppleFilled,
   FacebookFilled,
-  MailOutlined,
+  ArrowLeftOutlined,
+  CheckOutlined,
 } from "@ant-design/icons";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
+import { loginWithGoogle, loginWithFacebook, loginWithApple } from "../../services/loginService";
+import { callApi } from "@/utils/api";
+import { allGames } from "@/utils/games";
+import styles from "./LoginModal.module.css";
 
 const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
-  const handleLogin = async (provider) => {
+  const { t, i18n } = useTranslation();
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [step, setStep] = useState(1);
+  const [messageApi, contextHolder] = message.useMessage();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [games, setGames] = useState([]);
+
+  useEffect(() => {
+    if (visible) {
+      const saved = localStorage.getItem("selectedGame");
+      if (saved) setSelectedGame(JSON.parse(saved));
+      setStep(1);
+
+      const localizedGames = allGames.map((g) => ({
+        ...g,
+        name: i18n.language === "zh" ? g.name_zh : g.name_vi,
+      }));
+      setGames(localizedGames);
+    }
+  }, [visible, i18n.language]);
+
+  const handleSelectGame = (game) => {
+    setSelectedGame(game);
+    localStorage.setItem("selectedGame", JSON.stringify(game));
+  };
+
+  const handleNext = () => {
+    if (!selectedGame) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleBack = () => setStep(1);
+
+  const handleAccountLogin = async () => {
+    if (!selectedGame) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      return;
+    }
+    if (!username || !password) {
+      messageApi.warning({ key: "login", content: t("msg.please_fill_account") });
+      return;
+    }
+
     try {
-      let result = null;
-      switch (provider) {
-        case "google":
-          result = await loginWithGoogle();
-          break;
-        case "facebook":
-          result = await loginWithFacebook();
-          break;
-        case "apple":
-          result = await loginWithApple();
-          break;
-        default:
-          break;
+      messageApi.open({ key: "login", type: "loading", content: t("login.logging_in"), duration: 0 });
+
+      const res = await callApi("api/APILogin/BdLogin", "POST", {
+        UserName: username,
+        PassWord: password,
+        GameId: selectedGame.game_id,
+      });
+
+      if (!res?.success) {
+        messageApi.error({ key: "login", content: res?.message || t("login.login_fail") });
+        return;
       }
 
-      if (result) {
-        console.log("✅ Token:", result);
+      const userData = res.data;
+      localStorage.setItem("user", JSON.stringify(userData));
+      messageApi.success({ key: "login", content: t("login.login_success") });
+      onLoginSuccess?.(userData);
+      onClose();
+    } catch (err) {
+      console.error("Login error:", err);
+      messageApi.error({ key: "login", content: t("login.login_fail") });
+    }
+  };
 
-        // 调用你的后端登录接口
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(result),
-        });
+  const handleLogin = async (provider) => {
+    if (!selectedGame) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      return;
+    }
 
-        const data = await res.json();
-        console.log("Backend login result:", data);
+    try {
+      if (provider === "google") return loginWithGoogle();
+      if (provider === "facebook") return loginWithFacebook();
 
-        localStorage.setItem("user", JSON.stringify(data));
-        onLoginSuccess(data);
+      if (provider === "apple") {
+        messageApi.open({ key: "login", type: "loading", content: t("login.logging_in"), duration: 0 });
+
+        const payload = await loginWithApple();
+        if (!payload?.TokenId) {
+          messageApi.error({ key: "login", content: t("login.apple_fail") });
+          return;
+        }
+
+        const res = await callApi("/api/APILogin/ApLogin", "POST", payload);
+
+        if (!res?.success) {
+          messageApi.error({ key: "login", content: res?.message || t("login.login_fail") });
+          return;
+        }
+
+        const userData = res.data;
+        localStorage.setItem("user", JSON.stringify(userData));
+        messageApi.success({ key: "login", content: t("login.login_success") });
+        onLoginSuccess?.(userData);
         onClose();
       }
     } catch (e) {
-      console.error("Login failed:", e);
+      messageApi.error({ key: "login", content: t("login.login_fail") });
     }
   };
 
   return (
-    <Modal open={visible} onCancel={onClose} footer={null} centered>
-      <h2 style={{ textAlign: "center" }}>Đăng nhập</h2>
-      <p style={{ textAlign: "center", color: "#888" }}>
-        Một tài khoản cho tất cả sản phẩm VNGGames
-      </p>
+    <>
+      {contextHolder}
+      <Modal
+        open={visible}
+        onCancel={onClose}
+        footer={null}
+        closeIcon={null}
+        centered
+        width={500}
+        className={styles.modalWrapper}
+        destroyOnHidden
+        styles={{
+          body: { padding: 0 },
+        }}
+      >
+        {/* 背景模糊层 */}
+        <AnimatePresence>
+          {selectedGame && (
+            <motion.div
+              key={selectedGame.game_id}
+              className={styles.bgLayer}
+              style={{ backgroundImage: `url(${selectedGame.icon_url})` }}
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: [0.45, 0, 0.1, 1] }}
+            />
+          )}
+        </AnimatePresence>
 
-      <Space direction="vertical" style={{ width: "100%" }}>
-        <Button
-          block
-          type="primary"
-          icon={<MailOutlined />}
-          style={{ background: "#f97316", borderColor: "#f97316" }}
-        >
-          Email hoặc số điện thoại
-        </Button>
+        <div className={styles.inner}>
+          <div className={styles.header}>
+            {step === 2 && (
+              <Button
+                type="link"
+                icon={<ArrowLeftOutlined />}
+                onClick={handleBack}
+                className={styles.backBtn}
+              >
+                {t("login.back_to_game")}
+              </Button>
+            )}
+            <button className={styles.closeBtn} onClick={onClose}>✕</button>
+          </div>
 
-        <Button
-          block
-          type="primary"
-          style={{ background: "#0096E6", borderColor: "#0096E6" }}
-        >
-          Zing ID
-        </Button>
+          <AnimatePresence mode="wait">
+            {step === 1 ? (
+              <motion.div
+                key="select"
+                className={styles.body}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              >
+                <h2 className={styles.title}>{t("login.select_game")}</h2>
+                <p className={styles.subtitle}>{t("login.please_select_game")}</p>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-around",
-            marginTop: "8px",
-          }}
-        >
-          <Button
-            shape="circle"
-            icon={<AppleFilled />}
-            onClick={() => handleLogin("apple")}
-          />
-          <Button
-            shape="circle"
-            icon={<FacebookFilled />}
-            onClick={() => handleLogin("facebook")}
-          />
-          <Button
-            shape="circle"
-            icon={<GoogleOutlined />}
-            onClick={() => handleLogin("google")}
-          />
+                <div className={styles.grid}>
+                  {games.map((g) => {
+                    const active = selectedGame?.game_id === g.game_id;
+                    return (
+                      <motion.div
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        key={g.game_id}
+                        className={`${styles.card} ${active ? styles.active : ""}`}
+                        onClick={() => handleSelectGame(g)}
+                      >
+                        <img src={g.icon_url} alt={g.name} />
+                        {active && (
+                          <motion.div
+                            className={styles.check}
+                            initial={{ opacity: 0, scale: 0.6 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ type: "spring", stiffness: 300 }}
+                          >
+                            <CheckOutlined />
+                          </motion.div>
+                        )}
+                        <div className={styles.cardName}>{g.name}</div>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+
+                <Button
+                  type="primary"
+                  className={styles.nextBtn}
+                  disabled={!selectedGame}
+                  onClick={handleNext}
+                >
+                  {t("login.btn_login")}
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="login"
+                className={styles.body}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+              >
+                {/* ✅ 改成 BlueDream 品牌 */}
+                <h2 className={styles.title}>{t("login.btn_login")}</h2>
+                <p className={styles.subtitle}>Một tài khoản cho tất cả sản phẩm <strong>BlueDream</strong></p>
+
+                <input
+                  type="text"
+                  placeholder={i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"}
+                  className={styles.input}
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                />
+                <input
+                  type="password"
+                  placeholder={i18n.language === "zh" ? "密码" : "Mật khẩu"}
+                  className={styles.input}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+
+                <Button
+                  type="primary"
+                  block
+                  className={styles.loginBtn}
+                  onClick={handleAccountLogin}
+                >
+                  {t("login.btn_login")}
+                </Button>
+
+                <div className={styles.socialRow}>
+                  <button className={`${styles.social} ${styles.apple}`} onClick={() => handleLogin("apple")}>
+                    <AppleFilled />
+                  </button>
+                  <button className={`${styles.social} ${styles.facebook}`} onClick={() => handleLogin("facebook")}>
+                    <FacebookFilled />
+                  </button>
+                  <button className={`${styles.social} ${styles.google}`} onClick={() => handleLogin("google")}>
+                    <GoogleOutlined />
+                  </button>
+                </div>
+
+                <div className={styles.selectedTag}>🎮 {selectedGame?.name}</div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-      </Space>
-    </Modal>
+      </Modal>
+    </>
   );
 };
 

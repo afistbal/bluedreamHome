@@ -1,103 +1,69 @@
-import React, { useState } from "react";
-import { Button, Dropdown, Menu, Select, Tag } from "antd";
-import {
-  AppstoreOutlined,
-  GlobalOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
-import LoginModal from "./LoginModal"; // 引入登录弹窗
-import "./Header.css";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Button, Select } from "antd";
+import LoginModal from "./LoginModal";
+import { allGames } from "@/utils/games";
+import styles from "./Navbar.module.css";
+import Logo from "@/assets/logo.jpg";
 
-const { Option } = Select;
+export default function Navbar() {
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
 
-const Header = () => {
-  const [searchValue, setSearchValue] = useState("");
-  const [showLogin, setShowLogin] = useState(false); // 控制登录弹窗显示
+  const [isLoginVisible, setIsLoginVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [gameOptions, setGameOptions] = useState([]);
+  const [selectedValue, setSelectedValue] = useState();
 
-  // Ecosystem 菜单
-  const ecosystemMenu = (
-    <Menu
-      items={[
-        { key: "games", label: <a href="https://vnggames.com/games" target="_blank">Games</a> },
-        { key: "account", label: <a href="https://myaccount.vnggames.com/" target="_blank">Account</a> },
-        { key: "support", label: <a href="https://support.vnggames.com/" target="_blank">Support</a> },
-      ]}
-    />
-  );
+  useEffect(() => {
+    setLoading(true);
+    setTimeout(() => {
+      const localizedGames = allGames.map((g) => ({
+        ...g,
+        name: i18n.language === "zh" ? g.name_zh : g.name_vi,
+      }));
+      setGameOptions(localizedGames);
+      setLoading(false);
+    }, 300);
+  }, [i18n.language]);
 
-  // Language 菜单
-  const langMenu = (
-    <Menu
-      items={[
-        { key: "vn", label: "Việt Nam (VN)" },
-        { key: "en", label: "English (EN)" },
-        { key: "tw", label: "繁體中文 (TW)" },
-        { key: "th", label: "ไทย (TH)" },
-      ]}
-    />
-  );
-
-  // 游戏数据
-  const gameList = [
-    {
-      name: "Tam Quốc Huyễn Tướng VNG",
-      platform: "Mobile",
-      region: "VN",
-      icon: "/images/candy1.png",
-    },
-    {
-      name: "Roblox VN",
-      platform: "Mobile",
-      region: "VN",
-      icon: "/images/candy2.png",
-    },
-    {
-      name: "Liên Minh Huyền Thoại",
-      platform: "PC",
-      region: "VN",
-      icon: "/images/candy3.png",
-    },
-    {
-      name: "Play Together VNG",
-      platform: "Mobile",
-      region: "VN",
-      icon: "/images/candy4.png",
-    },
-  ];
+  const handleGameSelect = (value) => {
+    const game = gameOptions.find((g) => g.game_id === Number(value));
+    if (game) navigate(`/payment/${game.game_id}`);
+    setTimeout(() => setSelectedValue(null), 100);
+  };
 
   return (
     <>
-      <header className="vng-header">
-        <div className="vng-header-inner">
-          {/* 左侧 LOGO */}
-          <div className="vng-logo">
-            <img src="/images/logoshop.webp" alt="VNGGames Shop" />
-          </div>
+      <header className={styles.header}>
+        {/* ✅ PC 用 flex；H5 用 grid（见 CSS） */}
+        <div className={styles.navbarContainer}>
+          {/* 左：Logo */}
+          <Link to="/" className={styles.logoArea}>
+            <img src={Logo} alt="BlueDream logo" className={styles.logoImg} />
+          </Link>
 
-          {/* 搜索栏 */}
-          <div className="vng-search">
+          {/* 中：搜索 */}
+          <div className={styles.searchArea}>
             <Select
               showSearch
-              className="vng-search-select"
-              placeholder="Tìm kiếm game..."
-              suffixIcon={<SearchOutlined />}
-              value={searchValue}
-              onChange={setSearchValue}
-              filterOption={(input, option) =>
-                option?.label.toLowerCase().includes(input.toLowerCase())
-              }
-              options={gameList.map((game) => ({
-                value: game.name,
+              value={selectedValue}
+              placeholder={t("nav.search_games") || "Tìm trò chơi"}
+              className={styles.searchSelect}
+              optionLabelProp="label"
+              loading={loading}
+              onChange={handleGameSelect}
+              options={gameOptions.map((g) => ({
+                value: g.game_id,
                 label: (
-                  <div className="search-item">
-                    <img src={game.icon} alt={game.name} />
-                    <div className="search-item-info">
-                      <div className="name">{game.name}</div>
-                      <div className="meta">
-                        <Tag color={game.platform === "PC" ? "blue" : "volcano"} size="small">
-                          {game.platform}
-                        </Tag>
-                        <span className="region">{game.region}</span>
+                  <div className={styles.dropdownItem}>
+                    <img src={g.icon_url} alt={g.name} className={styles.dropdownIcon} />
+                    <div className={styles.dropdownInfo}>
+                      <div className={styles.dropdownName}>{g.name}</div>
+                      <div className={styles.dropdownMeta}>
+                        <span>{g.platform}</span>
+                        <span>• {g.region}</span>
                       </div>
                     </div>
                   </div>
@@ -106,40 +72,20 @@ const Header = () => {
             />
           </div>
 
-          {/* 功能区 */}
-          <div className="vng-actions">
-            <Dropdown overlay={ecosystemMenu} placement="bottomRight">
-              <Button
-                className="vng-icon-btn"
-                icon={<AppstoreOutlined style={{ fontSize: 18 }} />}
-              />
-            </Dropdown>
-
-            <Dropdown overlay={langMenu} placement="bottomRight">
-              <Button
-                className="vng-lang-btn"
-                icon={<GlobalOutlined style={{ fontSize: 18 }} />}
-              >
-                <span className="lang-text">VN</span>
-              </Button>
-            </Dropdown>
-
-            {/* 登录按钮 */}
-            <Button
-              type="primary"
-              className="vng-login-btn"
-              onClick={() => setShowLogin(!showLogin)}
-            >
-              Đăng nhập
+          {/* 右：登录（唯一按钮） */}
+          <div className={styles.actionArea}>
+            <Button className={styles.loginBtn} onClick={() => setIsLoginVisible(true)}>
+              {t("login.btn_login")}
             </Button>
           </div>
         </div>
       </header>
 
-      {/* 登录弹窗组件 */}
-      <LoginModal visible={showLogin} onClose={() => setShowLogin(false)} />
+      <LoginModal
+        visible={isLoginVisible}
+        onClose={() => setIsLoginVisible(false)}
+        onLoginSuccess={() => setIsLoginVisible(false)}
+      />
     </>
   );
-};
-
-export default Header;
+}

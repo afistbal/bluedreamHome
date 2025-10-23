@@ -1,0 +1,86 @@
+.wrap {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  padding: 16px 20px 20px;
+}
+.sectionTitle {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.hotWrap { margin-top: 8px; }
+.hotHead {
+  display: flex; gap: 8px; align-items: center;
+  height: 36px; padding: 0 12px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #ffecde, #ffe6d5);
+  color: #d14b06; font-weight: 700;
+}
+.fire { font-size: 18px; }
+.hotGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+}
+.cardHot, .card {
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+.thumbHot, .thumb {
+  width: 100%; height: 120px; object-fit: cover; display: block;
+}
+.cardBody { padding: 12px; }
+.cardName { font-weight: 600; margin-bottom: 6px; }
+.price { font-weight: 700; color: #f05c22; }
+
+.listHead {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 14px 0 8px;
+}
+.listTitle { font-weight: 700; }
+.listIcon { margin-right: 6px; }
+.tabs { display: flex; gap: 8px; }
+.tab {
+  height: 30px; padding: 0 10px;
+  border: 1px solid #eee; border-radius: 20px;
+  background: #fff; cursor: pointer; font-weight: 600; color: #555;
+}
+.active { background: #ffe8dd; border-color: #ffc3a9; color: #d14b06; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+}
+
+.cardFooter {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 6px;
+}
+
+/* 数量控件 */
+.qty, .qtySmall {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid #eee; border-radius: 999px;
+  padding: 2px 6px; background: #fafafa;
+}
+.btn {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: none; background: #fff; box-shadow: inset 0 0 0 1px #ddd;
+  cursor: pointer; font-weight: 700;
+}
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.input {
+  width: 24px; text-align: center; border: none; background: transparent; font-weight: 700;
+}
+.qtySmall { transform: scale(.92); transform-origin: right center; }
+
+@media (max-width: 1024px) {
+  .hotGrid, .grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 640px) {
+  .hotGrid, .grid { grid-template-columns: 1fr; }
+}

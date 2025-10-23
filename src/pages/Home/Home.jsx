@@ -1,149 +1,247 @@
-import { Carousel } from "antd";
-import { LeftOutlined, RightOutlined, FireOutlined } from "@ant-design/icons";
-import React, { useState, useEffect, useRef } from "react";
-import styles from "./Home.module.css"; // ✅ 样式隔离
-
-const banners = [
-  "https://scdn-img.vnggames.com/mainsite/images/TQHT-homepage-desktop-1650x928.jpg?qlty=100&size=750&iswebp=1",
-  "https://scdn-img.vnggames.com/mainsite/images/NBM-homepage-1650x928-v4.png?qlty=100&size=750&iswebp=1",
-];
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import styles from "./Home.module.css";
+import { allGames } from "@/utils/games";
+import banner from "@/assets/war2-banner1.jpg";
+import banner2 from "@/assets/war2-banner2.jpg";
+import banner3 from "@/assets/banner3.png";
 
 export default function Home() {
+  const { t, i18n } = useTranslation();
+  const slides = [banner, banner2, banner3];
   const [current, setCurrent] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const timer = useRef(null);
-  const carouselRef = useRef(null);
+  const [selectedGame, setSelectedGame] = useState(null);
 
-  const next = () => carouselRef.current.next();
-  const prev = () => carouselRef.current.prev();
+  const handleSelect = (game) => {
+    setSelectedGame(game);
+    localStorage.setItem("selectedGame", JSON.stringify(game));
+  };
 
+  // 自动轮播
   useEffect(() => {
-    setProgress(0);
-    clearInterval(timer.current);
-    let w = 0;
-    timer.current = setInterval(() => {
-      w += 1;
-      setProgress(w);
-      if (w >= 100) {
-        setCurrent((p) => (p + 1) % 2);
-        setProgress(0);
-      }
-    }, 60);
-    return () => clearInterval(timer.current);
-  }, [current]);
+    const timer = setInterval(() => {
+      setCurrent((p) => (p + 1) % slides.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
 
-  const games = [
-    { id: 1, name: "Tam Quốc Huyền Tưởng VNG", img: "https://scdn-img.vnggames.com/mainsite/images/lol-icon.jpg" },
-    { id: 2, name: "Liên Minh Huyền Thoại", img: "https://scdn-img.vnggames.com/mainsite/images/lol-icon.jpg" },
-    { id: 3, name: "PUBG Mobile VN", img: "https://scdn-img.vnggames.com/mainsite/images/lol-icon.jpg" },
-    { id: 4, name: "Roblox VN", img: "https://scdn-img.vnggames.com/mainsite/images/lol-icon.jpg" },
-    { id: 5, name: "Play Together VNG", img: "https://scdn-img.vnggames.com/mainsite/images/lol-icon.jpg" },
-  ];
+  // 滚动透明逻辑
+  useEffect(() => {
+    let ticking = false;
+    const saved = localStorage.getItem("selectedGame");
+    if (saved) setSelectedGame(JSON.parse(saved));
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        document.body.classList.toggle("scrolled", window.scrollY > 20);
+        ticking = false;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const benefits = [
-    { icon: "🎁", title: "Ưu đãi hấp dẫn" },
-    { icon: "🏆", title: "Vật phẩm độc quyền" },
-    { icon: "💳", title: "Thanh toán trực tiếp" },
-    { icon: "💰", title: "Giá tốt nhất" },
-  ];
+  // const changeLanguage = (lang) => i18n.changeLanguage(lang);
 
   return (
-    <main className={styles.vngHome}>
-      {/* Banner */}
-      <section className={styles.bannerSection}>
-        <div
-          className={styles.bannerBlurBg}
-          style={{ backgroundImage: `url(${banners[current]})` }}
-        ></div>
-
-        <div className={styles.bannerWrapper}>
-          <Carousel
-            autoplay
-            fade
-            ref={carouselRef}
-            beforeChange={(_, next) => setCurrent(next)}
-            dots={{ className: styles.bannerDots }}
-          >
-            {banners.map((src, i) => (
-              <div key={i} className={styles.bannerSlide}>
-                <img src={src} alt={`banner-${i}`} className={styles.bannerImg} />
-              </div>
-            ))}
-          </Carousel>
-
-          <button className={`${styles.bannerBtn} ${styles.left}`} onClick={prev}>
-            <LeftOutlined />
-          </button>
-          <button className={`${styles.bannerBtn} ${styles.right}`} onClick={next}>
-            <RightOutlined />
-          </button>
+    <div className={styles.homePage}>
+      {/* Nav */}
+      <nav className={styles.siteNav}>
+        <div className={`${styles.container} ${styles.siteNavInner}`}>
+          <Link to="/" className={styles.siteNavLink}>
+            {t("nav_home")}
+          </Link>
+          <a href="#" className={styles.siteNavLink}>
+            {t("nav_products")}
+          </a>
+          <a href="#" className={styles.siteNavLink}>
+            {t("nav_news")}
+          </a>
+          <a href="#" className={styles.siteNavLink}>
+            {t("nav_download")}
+          </a>
+          <a href="#" className={styles.siteNavLink}>
+            {t("nav_support")}
+          </a>
+          <a href="#" className={styles.siteNavLink}>
+            {t("nav_about")}
+          </a>
         </div>
-      </section>
+      </nav>
 
-      {/* Games Section */}
-      <section className={styles.section}>
-        <div className={styles.container}>
-          <h2 className={styles.sectionTitle}>
-            <FireOutlined style={{ color: "#f05c22" }} /> DÀNH CHO BẠN
-          </h2>
-          <div className={styles.gameGrid}>
-            {games.map((g) => (
-              <div className={styles.gameCard} key={g.id}>
-                <div className={styles.gameThumbWrap}>
-                  <img src={g.img} alt={g.name} className={styles.gameThumb} />
-                </div>
-                <div className={styles.gameInfo}>
-                  <h3>{g.name}</h3>
-                  <button className={styles.btnOrange}>Nạp ngay</button>
-                </div>
-              </div>
+      {/* Banner */}
+      <section className={styles.hero}>
+        <div className={styles.heroBanner}>
+          <div className={styles.heroSlides}>
+            <img className={styles.heroSizer} src={slides[0]} alt="sizer" />
+            <div key={current} className={styles.heroSlide}>
+              <img
+                className={styles.heroBannerImg}
+                src={slides[current]}
+                alt={`banner-${current + 1}`}
+              />
+            </div>
+          </div>
+          <div className={styles.heroBannerDots}>
+            {slides.map((_, idx) => (
+              <span
+                key={idx}
+                className={`${styles.heroBannerDot} ${
+                  idx === current ? styles.heroBannerDotActive : ""
+                }`}
+                onClick={() => setCurrent(idx)}
+              ></span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className={styles.benefitSection}>
-        <h2 className={styles.benefitTitle}>LỢI ÍCH KHI NẠP TẠI VNGGAMES</h2>
-        <div className={styles.benefitGrid}>
-          {benefits.map((b, i) => (
-            <div className={styles.benefitCard} key={i}>
-              <div className={styles.benefitIcon}>{b.icon}</div>
-              <p>{b.title}</p>
+      {/* Game Cards */}
+      <main className={styles.container}>
+        {/* 推荐游戏 */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>{t("recommended_for_you")}</h2>
+          <div className={styles.grid}>
+            {allGames.map((game) => (
+              <div
+                key={game.game_id}
+                className={`${styles.card} ${styles.gridCard} ${
+                  selectedGame?.game_id === game.game_id
+                    ? styles.cardActive
+                    : ""
+                }`}
+                onClick={() => handleSelect(game)}
+              >
+                <div className={styles.gridThumb}>
+                  <img src={game.icon_url} alt={game.name} />
+                </div>
+                <div className={styles.gridTitle}>{game.name}</div>
+                <Link
+                  to={`/payment/${game.game_id}`}
+                  className={`${styles.btn} ${styles.btnPrimary}`}
+                >
+                  {t("top_up_now")}
+                </Link>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ✅ Lợi ích khi nạp tại BlueDream */}
+        <section className={styles.section}>
+          <h2 className={styles.sectionTitle}>{t("benefits_title")}</h2>
+          <div className={styles.benefits}>
+            {/* 1️⃣ 优惠 */}
+            <div className={`${styles.card} ${styles.benefitsItem}`}>
+              <img
+                src="/src/assets/icon_offers.png"
+                alt="Offers"
+                className={styles.benefitsIcon}
+              />
+              <div className={styles.benefitsTitle}>
+                {t("attractive_offers")}
+              </div>
             </div>
-          ))}
-        </div>
-      </section>
+
+            {/* 2️⃣ 道具 */}
+            <div className={`${styles.card} ${styles.benefitsItem}`}>
+              <img
+                src="/src/assets/icon_items.png"
+                alt="Items"
+                className={styles.benefitsIcon}
+              />
+              <div className={styles.benefitsTitle}>{t("exclusive_items")}</div>
+            </div>
+
+            {/* 3️⃣ 支付 */}
+            <div className={`${styles.card} ${styles.benefitsItem}`}>
+              <img
+                src="/src/assets/icon_payment.png"
+                alt="Payment"
+                className={styles.benefitsIcon}
+              />
+              <div className={styles.benefitsTitle}>{t("direct_payment")}</div>
+            </div>
+
+            {/* 4️⃣ 价格 */}
+            <div className={`${styles.card} ${styles.benefitsItem}`}>
+              <img
+                src="/src/assets/icon_price.png"
+                alt="Price"
+                className={styles.benefitsIcon}
+              />
+              <div className={styles.benefitsTitle}>{t("best_price")}</div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div className={styles.dazzlingGradientSection}></div>
+
+      <div class="dazzling-gradient-section"></div>
 
       {/* Footer */}
       <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerLogo}>VNGGAMES Shop</div>
-          <div className={styles.footerLinks}>
+        <div className={styles.container}>
+          <div className={styles.footerGrid}>
             <div>
-              <h4>Khám phá</h4>
-              <ul>
-                <li>Đại lý thẻ Zing</li>
+              <div className={styles.footerTitle}>{t("quick_links")}</div>
+              <ul className={styles.footerList}>
+                <li>
+                  <Link to="/">{t("nav_home")}</Link>
+                </li>
+                <li>
+                  <a href="#">{t("nav_products")}</a>
+                </li>
+                <li>
+                  <a href="#">{t("nav_news")}</a>
+                </li>
+                <li>
+                  <a href="#">{t("nav_download")}</a>
+                </li>
+                <li>
+                  <a href="#">{t("nav_support")}</a>
+                </li>
               </ul>
             </div>
             <div>
-              <h4>Hỗ trợ</h4>
-              <ul>
-                <li>Hướng dẫn nạp tiền</li>
-                <li>Câu hỏi thường gặp</li>
-                <li>Chăm sóc khách hàng</li>
+              <div className={styles.footerTitle}>{t("policy")}</div>
+              <ul className={styles.footerList}>
+                <li>
+                  <Link to="/policy?type=privacy">{t("privacy_policy")}</Link>
+                </li>
+                <li>
+                  <Link to="/policy?type=terms">{t("service_terms")}</Link>
+                </li>
+                <li>
+                  <Link to="/policy?type=refund">{t("refund_policy")}</Link>
+                </li>
+                <li>
+                  <Link to="/policy?type=deletion">{t("data_deletion")}</Link>
+                </li>
               </ul>
             </div>
             <div>
-              <h4>Điều khoản dịch vụ</h4>
-              <h4>Chính sách bảo mật</h4>
+              <div className={styles.footerTitle}>{t("customer_service")}</div>
+              <ul className={styles.footerList}>
+                <li>Hotline: 1900 0000</li>
+                <li>Email: support@bluedream.vn</li>
+                <li>{t("working_time")}: 09:00–18:00</li>
+              </ul>
+            </div>
+            <div>
+              <div className={styles.footerTitle}>BlueDream</div>
+              <div className={styles.footerNote}>
+                {t("footer_note")}
+                <br />
+                ©Copyright 2025 BlueDream. All Rights Reserved
+              </div>
             </div>
           </div>
         </div>
-        <div className={styles.footerBottom}>
-          © Copyright ©2023 VNG. All Rights Reserved
-        </div>
       </footer>
-    </main>
+    </div>
   );
 }

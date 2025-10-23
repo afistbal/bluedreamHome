@@ -1,0 +1,21 @@
+.card {}
+.title {
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.item {
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.label { color: #777; font-size: 12px; margin-bottom: 4px; }
+.value { font-weight: 600; }
+@media (max-width: 720px){
+  .grid { grid-template-columns: 1fr; }
+}

@@ -50,3 +50,33 @@
   color: #333;
   margin-bottom: 20px;
 }
+
+/* —— Mobile Bottom Bar —— */
+.mobile-bottom-bar {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  z-index: 100;
+  display: none;
+  height: 56px;
+  padding: 0 12px;
+  background: #fff;
+  border-top: 1px solid rgba(0,0,0,0.08);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mobile-bottom-left { display: flex; align-items: baseline; gap: 8px; }
+.mobile-total-label { color: #666; font-weight: 600; }
+.mobile-total-amount { font-weight: 800; color: #ff7a00; }
+
+.mobile-continue-btn { height: 40px; border-radius: 8px; }
+
+/* 抽屉优化 */
+.mobile-drawer .ant-drawer-header { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.mobile-drawer .ant-drawer-content { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+
+/* 响应式：<= 768 显示底栏，右栏正常隐藏在底栏中展示 */
+@media (max-width: 768px) {
+  .mobile-bottom-bar { display: flex; }
+  .right-column { display: none; } /* PC 右栏在 H5 用 Drawer 显示 */
+}
