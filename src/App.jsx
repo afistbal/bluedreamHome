@@ -8,6 +8,8 @@ import Callback from "./pages/Callback/Callback.jsx";
 import SePayCheckout from "@/pages/Payment/components/SePayCheckout";
 import GlobalMessage from "@/components/GlobalMessage/GlobalMessage";
 import PaymentProcess from "@/pages/Payment/PaymentProcess.jsx";
+import PaySuccess from "@/pages/Payment/PaySuccess.jsx";
+import PayCancel from "@/pages/Payment/PayCancel.jsx";
 
 function App() {
   const location = useLocation();
@@ -30,6 +32,12 @@ function App() {
         <Route path="/auth/:provider/callback" element={<Callback />} />
         <Route path="/payment/sepay/:orderId" element={<SePayCheckout />} />
         <Route path="/payment/process" element={<PaymentProcess />} />
+        {/* ✅ 支付成功回调页 */}
+        <Route path="/payment/order/success/:orderId" element={<PaySuccess />} />
+
+        {/* ✅ 支付取消回调页 */}
+        <Route path="/payment/order/cancel/:orderId" element={<PayCancel />} />
+        
       </Routes>
 
       {!isHideLayout && <Footer />}

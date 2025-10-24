@@ -9,7 +9,11 @@ import {
 } from "@ant-design/icons";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import { loginWithGoogle, loginWithFacebook, loginWithApple } from "../../services/loginService";
+import {
+  loginWithGoogle,
+  loginWithFacebook,
+  loginWithApple,
+} from "../../services/loginService";
 import { callApi } from "@/utils/api";
 import { allGames } from "@/utils/games";
 import styles from "./LoginModal.module.css";
@@ -26,8 +30,13 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
   useEffect(() => {
     if (visible) {
       const saved = localStorage.getItem("selectedGame");
-      if (saved) setSelectedGame(JSON.parse(saved));
-      setStep(1);
+      if (saved) {
+        const game = JSON.parse(saved);
+        setSelectedGame(game);
+        setStep(2); // ✅ 若已有选中游戏则直接跳到登录页
+      } else {
+        setStep(1);
+      }
 
       const localizedGames = allGames.map((g) => ({
         ...g,
@@ -37,14 +46,17 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
     }
   }, [visible, i18n.language]);
 
+  // ✅ 选游戏时不再立即写 localStorage，只在登录成功后才写
   const handleSelectGame = (game) => {
     setSelectedGame(game);
-    localStorage.setItem("selectedGame", JSON.stringify(game));
   };
 
   const handleNext = () => {
     if (!selectedGame) {
-      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      messageApi.warning({
+        key: "login",
+        content: t("msg.please_choose_game"),
+      });
       return;
     }
     setStep(2);
@@ -52,18 +64,30 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
 
   const handleBack = () => setStep(1);
 
+  // ✅ 登录成功时再写入 selectedGame
   const handleAccountLogin = async () => {
     if (!selectedGame) {
-      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      messageApi.warning({
+        key: "login",
+        content: t("msg.please_choose_game"),
+      });
       return;
     }
     if (!username || !password) {
-      messageApi.warning({ key: "login", content: t("msg.please_fill_account") });
+      messageApi.warning({
+        key: "login",
+        content: t("msg.please_fill_account"),
+      });
       return;
     }
 
     try {
-      messageApi.open({ key: "login", type: "loading", content: t("login.logging_in"), duration: 0 });
+      messageApi.open({
+        key: "login",
+        type: "loading",
+        content: t("login.logging_in"),
+        duration: 0,
+      });
 
       const res = await callApi("api/APILogin/BdLogin", "POST", {
         UserName: username,
@@ -72,12 +96,19 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
       });
 
       if (!res?.success) {
-        messageApi.error({ key: "login", content: res?.message || t("login.login_fail") });
+        messageApi.error({
+          key: "login",
+          content: res?.message || t("login.login_fail"),
+        });
         return;
       }
 
       const userData = res.data;
+
+      // ✅ 登录成功后再保存游戏
+      localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
       localStorage.setItem("user", JSON.stringify(userData));
+
       messageApi.success({ key: "login", content: t("login.login_success") });
       onLoginSuccess?.(userData);
       onClose();
@@ -87,9 +118,13 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
     }
   };
 
+  // ✅ 同理：第三方登录时也在成功后写入 selectedGame
   const handleLogin = async (provider) => {
     if (!selectedGame) {
-      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      messageApi.warning({
+        key: "login",
+        content: t("msg.please_choose_game"),
+      });
       return;
     }
 
@@ -98,7 +133,12 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
       if (provider === "facebook") return loginWithFacebook();
 
       if (provider === "apple") {
-        messageApi.open({ key: "login", type: "loading", content: t("login.logging_in"), duration: 0 });
+        messageApi.open({
+          key: "login",
+          type: "loading",
+          content: t("login.logging_in"),
+          duration: 0,
+        });
 
         const payload = await loginWithApple();
         if (!payload?.TokenId) {
@@ -109,12 +149,19 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
         const res = await callApi("/api/APILogin/ApLogin", "POST", payload);
 
         if (!res?.success) {
-          messageApi.error({ key: "login", content: res?.message || t("login.login_fail") });
+          messageApi.error({
+            key: "login",
+            content: res?.message || t("login.login_fail"),
+          });
           return;
         }
 
         const userData = res.data;
+
+        // ✅ 登录成功后再保存
+        localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
         localStorage.setItem("user", JSON.stringify(userData));
+
         messageApi.success({ key: "login", content: t("login.login_success") });
         onLoginSuccess?.(userData);
         onClose();
@@ -167,7 +214,9 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
                 {t("login.back_to_game")}
               </Button>
             )}
-            <button className={styles.closeBtn} onClick={onClose}>✕</button>
+            <button className={styles.closeBtn} onClick={onClose}>
+              ✕
+            </button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -181,7 +230,9 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
                 <h2 className={styles.title}>{t("login.select_game")}</h2>
-                <p className={styles.subtitle}>{t("login.please_select_game")}</p>
+                <p className={styles.subtitle}>
+                  {t("login.please_select_game")}
+                </p>
 
                 <div className={styles.grid}>
                   {games.map((g) => {
@@ -191,7 +242,9 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         key={g.game_id}
-                        className={`${styles.card} ${active ? styles.active : ""}`}
+                        className={`${styles.card} ${
+                          active ? styles.active : ""
+                        }`}
                         onClick={() => handleSelectGame(g)}
                       >
                         <img src={g.icon_url} alt={g.name} />
@@ -231,11 +284,15 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
               >
                 {/* ✅ 改成 BlueDream 品牌 */}
                 <h2 className={styles.title}>{t("login.btn_login")}</h2>
-                <p className={styles.subtitle}>Một tài khoản cho tất cả sản phẩm <strong>BlueDream</strong></p>
+                <p className={styles.subtitle}>
+                  Một tài khoản cho tất cả sản phẩm <strong>BlueDream</strong>
+                </p>
 
                 <input
                   type="text"
-                  placeholder={i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"}
+                  placeholder={
+                    i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"
+                  }
                   className={styles.input}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -258,18 +315,29 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
                 </Button>
 
                 <div className={styles.socialRow}>
-                  <button className={`${styles.social} ${styles.apple}`} onClick={() => handleLogin("apple")}>
+                  <button
+                    className={`${styles.social} ${styles.apple}`}
+                    onClick={() => handleLogin("apple")}
+                  >
                     <AppleFilled />
                   </button>
-                  <button className={`${styles.social} ${styles.facebook}`} onClick={() => handleLogin("facebook")}>
+                  <button
+                    className={`${styles.social} ${styles.facebook}`}
+                    onClick={() => handleLogin("facebook")}
+                  >
                     <FacebookFilled />
                   </button>
-                  <button className={`${styles.social} ${styles.google}`} onClick={() => handleLogin("google")}>
+                  <button
+                    className={`${styles.social} ${styles.google}`}
+                    onClick={() => handleLogin("google")}
+                  >
                     <GoogleOutlined />
                   </button>
                 </div>
 
-                <div className={styles.selectedTag}>🎮 {selectedGame?.name}</div>
+                <div className={styles.selectedTag}>
+                  🎮 {selectedGame?.name}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

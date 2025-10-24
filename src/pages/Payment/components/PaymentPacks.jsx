@@ -9,7 +9,7 @@ const mockPacks = [
     name: "Gói 60 Kim Cương",
     desc: "Gói 60 Kim Cương",
     price: 20000,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 60.png",
   },
   {
     id: "pirate.pack.diamond.2",
@@ -17,14 +17,14 @@ const mockPacks = [
     desc: "Gói 150 Kim Cương",
     price: 50000,
     sale: true,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 150.png",
   },
   {
     id: "pirate.pack.diamond.4",
     name: "Gói 300 Kim Cương",
     desc: "Gói 300 Kim Cương",
     price: 100000,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 300.png",
   },
   {
     id: "pirate.pack.diamond.20",
@@ -32,14 +32,14 @@ const mockPacks = [
     desc: "Gói 1502 Kim Cương + Bonus 81 Kim Cương",
     price: 500000,
     sale: true,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 1582.png",
   },
   {
     id: "pirate.pack.diamond.50",
     name: "Gói 3226 Kim Cương",
     desc: "Gói 3003 Kim Cương + Bonus 223 Kim Cương",
     price: 1000000,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 3226.png",
   },
   {
     id: "pirate.pack.diamond.100",
@@ -47,7 +47,7 @@ const mockPacks = [
     desc: "Gói 15015 Kim Cương + Bonus 1652 Kim Cương",
     price: 5000000,
     sale: true,
-    image: "/src/assets/57c81556-52b0-4640-b272-f9441b7e9394.png",
+    image: "/src/assets/Pack 16667.png",
   },
 ];
 
@@ -69,15 +69,6 @@ export default function PaymentPacks({
           <h2 className={styles.title}>📜 Chọn gói</h2>
           <span className={styles.hot}>🔥 Danh sách gói</span>
         </div>
-        {/* <div className={styles.headerRight}>
-          <span className={styles.switchLabel}>Mua nhiều Gói nạp</span>
-          <Switch
-            checked={multiBuy}
-            onChange={onToggleMultiBuy}
-            size="small"
-            className={styles.switchBtn}
-          />
-        </div> */}
       </div>
 
       <div className={styles.grid}>

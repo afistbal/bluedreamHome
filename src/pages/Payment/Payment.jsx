@@ -1,4 +1,3 @@
-// src/pages/Payment/Payment.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import PaymentLogin from "./components/PaymentLogin";
 import PaymentPacks from "./components/PaymentPacks";
@@ -6,7 +5,8 @@ import PaymentMethods from "./components/PaymentMethods";
 import { callApi } from "@/utils/api";
 import { message, Spin, Drawer, Button, Badge } from "antd";
 import { formatVND } from "@/utils/games.js";
-import "./styles/PaymentLayout.css";
+import "./styles/PaymentLayout.css"; // 如果你仍在用，可以保留
+import styles from "./Payment.module.css";
 import { useTranslation } from "react-i18next";
 
 const MAX_QTY_PER_ITEM = 8;               // 单品最大数量
@@ -22,35 +22,10 @@ export default function Payment() {
   const [selectedPacks, setSelectedPacks] = useState([]); // [{id,name,price,image,qty}]
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // 从 URL 拿 gameId（保持你原逻辑）:contentReference[oaicite:4]{index=4}
   const [gameId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("gameid") || 2;
   });
-
-  // useEffect(() => {
-  //   async function fetchPayMethods() {
-  //     setLoading(true);
-  //     try {
-  //       const res = await callApi("/api/ApiPurchase/PayMethod/?gameid=2", "GET");
-  //       if (res === -1) {
-  //         message.error(t("errors.invalid_gameid"));
-  //         setPayMethods([]);
-  //       } else if (Array.isArray(res)) {
-  //         setPayMethods(res);
-  //       } else if (res?.data) {
-  //         setPayMethods(res.data);
-  //       } else {
-  //         message.warning(t("errors.no_paymethods"));
-  //       }
-  //     } catch (err) {
-  //       message.error(t("errors.load_paymethods_fail"));
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   fetchPayMethods();
-  // }, [gameId, t]);
 
   // 计算总价/总数
   const { totalQty, totalVnd } = useMemo(() => {
@@ -94,18 +69,18 @@ export default function Payment() {
   const openMobileSheet = () => setMobileOpen(true);
   const closeMobileSheet = () => setMobileOpen(false);
 
-  // 支付按钮是否可点
-  const payDisabled = false;// overTotalLimit || totalVnd <= 0 || payMethods.length === 0
+  // 支付按钮是否可点（保持你原来的占位逻辑）
+  const payDisabled = false; // overTotalLimit || totalVnd <= 0 || payMethods.length === 0
 
   return (
-    <main className="payment-page">
-      <div className="payment-container">
-        {/* 左：登录 + 选包（保持你的结构）:contentReference[oaicite:5]{index=5} */}
-        <div className="left-column">
-          <section className="section-box">
+    <main className={styles["payment-page"]}>
+      <div className={styles["payment-container"]}>
+        {/* 左：登录 + 选包（保留你的结构） */}
+        <div className={styles["left-column"]}>
+          <section className={styles["section-box"]}>
             <PaymentLogin />
           </section>
-          <section className="section-box">
+          <section className={styles["section-box"]}>
             <PaymentPacks
               selected={selectedPacks}
               onAdd={addPack}
@@ -115,11 +90,11 @@ export default function Payment() {
           </section>
         </div>
 
-        {/* 右：订单 + 支付（PC 固定、H5 由 Drawer 展示） */}
-        <div className="right-column">
-          <section className="section-sticky">
+        {/* 右：订单 + 支付（PC 固定、H5隐藏，以 Drawer 展示） */}
+        <div className={styles["right-column"]}>
+          <section className={styles["section-sticky"]}>
             {loading ? (
-              <div className="loading-center"><Spin tip={t("common.loading")} /></div>
+              <div className={styles["loading-center"]}><Spin tip={t("common.loading")} /></div>
             ) : (
               <PaymentMethods
                 selected={selectedPacks}
@@ -136,17 +111,17 @@ export default function Payment() {
         </div>
       </div>
 
-      {/* —— H5 底部结算条 —— */}
-      <div className="mobile-bottom-bar">
-        <div className="mobile-bottom-left">
+      {/* —— H5 底部结算条（PC隐藏） —— */}
+      <div className={styles["mobile-bottom-bar"]}>
+        <div className={styles["mobile-bottom-left"]}>
           <Badge count={totalQty} size="small">
-            <span className="mobile-total-label">{t("cart.total")}</span>
+            <span className={styles["mobile-total-label"]}>{t("cart.total")}</span>
           </Badge>
-          <span className="mobile-total-amount">{formatVND(totalVnd)}</span>
+          <span className={styles["mobile-total-amount"]}>{formatVND(totalVnd)}</span>
         </div>
         <Button
           type="primary"
-          className="mobile-continue-btn"
+          className={styles["mobile-continue-btn"]}
           onClick={openMobileSheet}
           disabled={totalVnd <= 0}
         >
@@ -154,14 +129,15 @@ export default function Payment() {
         </Button>
       </div>
 
-      {/* —— H5 订单抽屉 —— */}
+      {/* —— H5 订单抽屉（PC强制隐藏） —— */}
       <Drawer
         title={t("cart.order_info")}
         placement="bottom"
         height="78vh"
         onClose={closeMobileSheet}
         open={mobileOpen}
-        className="mobile-drawer"
+        className={styles["mobile-drawer"]}
+        maskClosable
       >
         <PaymentMethods
           selected={selectedPacks}

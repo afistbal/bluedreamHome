@@ -67,7 +67,7 @@
 
 .mobile-bottom-left { display: flex; align-items: baseline; gap: 8px; }
 .mobile-total-label { color: #666; font-weight: 600; }
-.mobile-total-amount { font-weight: 800; color: #ff7a00; }
+.mobile-total-amount { font-weight: 800; color: #3b82f6; }
 
 .mobile-continue-btn { height: 40px; border-radius: 8px; }
 

@@ -1,9 +1,9 @@
 import React from "react";
 import { Radio, Button, Alert, message } from "antd";
-import "../styles/PaymentMethods.css";
 import { formatVND } from "@/utils/games.js";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import styles from "../styles/PaymentMethods.module.css";
 
 export default function PaymentMethods({
   selected = [],
@@ -14,15 +14,32 @@ export default function PaymentMethods({
   totalVnd = 0,
   overTotalLimit = false,
   payDisabled = false,
-  compact = false,
+  compact = false, // ✅ H5 Drawer 内传入 compact
 }) {
   const { t } = useTranslation();
-  const [method, setMethod] = React.useState(payMethods?.[0]?.code || "");
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
+
+  // ✅ 默认支付方式
+  const methods = React.useMemo(() => {
+    if (Array.isArray(payMethods) && payMethods.length > 0) return payMethods;
+    return [
+      { code: "sepay", name: "SePay", icon: "" },
+      { code: "zalopay", name: "ZaloPay", icon: "" },
+    ];
+  }, [payMethods]);
+
+  const [method, setMethod] = React.useState(methods?.[0]?.code || "sepay");
+
+  // ✅ 展开/收起逻辑（仅 PC）
+  const [showAll, setShowAll] = React.useState(false);
+  const isMobileCompact = compact;
+  const visibleItems =
+    !isMobileCompact && !showAll ? selected.slice(0, 2) : selected;
 
   const handlePay = () => {
     if (payDisabled || totalVnd <= 0 || selected.length === 0) {
-      message.warning("Không có đơn hàng hợp lệ!");
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
       return;
     }
 
@@ -38,97 +55,143 @@ export default function PaymentMethods({
 
     // ✅ 跳转到支付页面
     navigate(`/payment/process?${query.toString()}`);
+    // 留给父层逻辑处理支付
   };
 
   return (
-    <div className="method-card">
-      <h2 className="section-title">{t("orders.title")}</h2>
+    <div className={`${styles.methodCard} ${compact ? styles.compact : ""}`}>
+      {/* ===== 标题 ===== */}
+      <div className={styles.cardHeader}>
+        <h2 className={styles.cardTitle}>
+          3. {t("orders.title") || "Thông tin đơn hàng"}
+        </h2>
+      </div>
 
+      {/* 超额提示 */}
       {overTotalLimit && (
         <Alert
           type="error"
           message={t("errors.over_total_limit")}
-          style={{ marginBottom: 12 }}
+          className={styles.alert}
           showIcon
         />
       )}
 
-      {/* 商品清单 */}
-      <div className="order-list">
+      {/* ===== 订单清单 ===== */}
+      <div className={styles.orderList}>
         {selected.length === 0 ? (
-          <div className="order-item" style={{ justifyContent: "center" }}>
-            {t("orders.empty")}
-          </div>
+          <div className={styles.orderEmpty}>{t("orders.empty")}</div>
         ) : (
-          selected.map((item) => (
-            <div className="order-item" key={item.id}>
-              <img src={item.image} alt={item.name} />
-              <div style={{ flex: 1, marginRight: 8 }}>
-                <p>{item.name}</p>
-                <span>{formatVND(item.price)}</span>
+          visibleItems.map((item) => (
+            <div key={item.id} className={styles.orderItem}>
+              <img src={item.image} alt={item.name} className={styles.thumb} />
+              <div className={styles.itemInfo}>
+                <p className={styles.itemName}>{item.name}</p>
+                <span className={styles.itemPrice}>
+                  {formatVND(item.price)}
+                </span>
               </div>
 
-              <div className="qty">
-                <Button size="small" onClick={() => onReduce(item.id)}>
+              <div className={styles.qtyWrap}>
+                <Button
+                  size="small"
+                  className={styles.qtyBtn}
+                  onClick={() => onReduce?.(item.id)}
+                >
                   -
                 </Button>
-                <span style={{ margin: "0 6px" }}>x{item.qty}</span>
-                <Button size="small" onClick={() => onAdd(item)}>
+
+                <span className={styles.priceNum}>{item.qty}</span>
+
+                <Button
+                  size="small"
+                  className={styles.qtyBtn}
+                  onClick={() => onAdd?.(item)}
+                >
                   +
                 </Button>
               </div>
-
-              <Button
-                size="small"
-                type="text"
-                onClick={() => onRemove(item.id)}
-              >
-                {t("orders.remove")}
-              </Button>
             </div>
           ))
         )}
       </div>
+      {contextHolder}
 
-      {/* 支付方式 */}
-      <h3 className="section-title" style={{ marginTop: 12 }}>
-        {t("payments.title")}
-      </h3>
+      {/* ===== 展开/收起 ===== */}
+      {!isMobileCompact && selected.length > 2 && (
+        <div className={styles.moreWrap}>
+          {!showAll ? (
+            <Button
+              className={styles.moreBtn}
+              onClick={() => setShowAll(true)}
+              size="small"
+            >
+              {t("orders.show_more") || "Xem thêm"} ({selected.length - 2})
+            </Button>
+          ) : (
+            <Button
+              className={styles.moreBtn}
+              onClick={() => setShowAll(false)}
+              size="small"
+            >
+              {t("orders.collapse") || "Rút gọn"}
+            </Button>
+          )}
+        </div>
+      )}
 
-      {!!payMethods?.length && (
-        <div className="method-group">
+      {/* ===== 支付方式 ===== */}
+      <div className={styles.sectionBlock}>
+        <h3 className={styles.blockTitle}>
+          {t("payments.title") || "Phương thức thanh toán"}
+        </h3>
+
+        <div className={styles.methodGroup}>
           <Radio.Group
             value={method}
             onChange={(e) => setMethod(e.target.value)}
+            className={styles.methodRadios}
           >
-            {payMethods.map((m) => (
-              <Radio key={m.code} value={m.code} className="method-item">
-                {m.icon && <img src={m.icon} alt={m.name} />}
-                {m.name}
+            {methods.map((m) => (
+              <Radio
+                key={m.code}
+                value={m.code}
+                className={`${styles.methodItem} ${
+                  method === m.code ? styles.methodActive : ""
+                }`}
+              >
+                {m.icon ? (
+                  <img
+                    src={m.icon}
+                    alt={m.name}
+                    className={styles.methodIcon}
+                  />
+                ) : null}
+                <span>{m.name}</span>
               </Radio>
             ))}
           </Radio.Group>
         </div>
-      )}
-
-      {/* 订单汇总 */}
-      <div className="summary-box" style={{ marginTop: 12 }}>
-        <span>{t("orders.total")}</span>
-        <strong>{formatVND(totalVnd)}</strong>
       </div>
 
+      {/* ===== 合计 ===== */}
+      <div className={styles.summaryBox}>
+        <span className={styles.summaryLabel}>
+          {t("orders.total") || "Tổng thanh toán"}
+        </span>
+        <strong className={styles.summaryAmount}>{formatVND(totalVnd)}</strong>
+      </div>
+
+      {/* ===== 支付按钮 ===== */}
       <Button
         type="primary"
         block
         size="large"
-        className="pay-button"
-        disabled={payDisabled}
-        style={
-          compact ? { position: "sticky", bottom: 0, marginTop: 12 } : undefined
-        }
+        className={styles.payButton}
+        disabled={payDisabled || totalVnd <= 0 || selected.length === 0}
         onClick={handlePay}
       >
-        {t("payments.pay_now")}
+        {t("payments.pay_now") || "Thanh toán ngay"}
       </Button>
     </div>
   );

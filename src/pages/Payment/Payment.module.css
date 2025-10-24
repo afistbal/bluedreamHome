@@ -1,4 +1,5 @@
-.paymentPage {
+/* ===== 全局背景（PC 与 H5 统一基调） ===== */
+.payment-page {
   background: #f9fafb;
   min-height: 100vh;
   display: flex;
@@ -7,8 +8,8 @@
   padding: 60px 0;
 }
 
-/* PC 主容器 */
-.paymentContainer {
+/* ===== PC 布局：左右两列 ===== */
+.payment-container {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -19,25 +20,25 @@
   box-sizing: border-box;
 }
 
-.leftColumn {
+.left-column {
   flex: 0 0 70%;
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.rightColumn {
+.right-column {
   flex: 0 0 30%;
 }
 
-.sectionBox {
+.section-box {
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   padding: 20px;
 }
 
-.sectionSticky {
+.section-sticky {
   position: sticky;
   top: 80px;
   background: #fff;
@@ -46,120 +47,52 @@
   padding: 20px;
 }
 
-/* ===== 标题区 ===== */
-.sectionHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-}
+/* PC 默认隐藏移动端控件 */
+.mobile-bottom-bar { display: none; }
+.mobile-drawer { display: none; }
 
-.sectionTitle {
-  font-size: 17px;
-  font-weight: 700;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sectionSwitch {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #999;
-  font-size: 13px;
-}
-
-/* ===== Tab 区 ===== */
-.tabBar {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tabBtn {
-  flex: 1;
-  text-align: center;
-  padding: 8px 0;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #444;
-  transition: all 0.2s ease;
-}
-
-.tabBtn:hover {
-  border-color: #ff7a00;
-  color: #ff7a00;
-}
-
-.tabActive {
-  background: #fff7f0;
-  border-color: #ff7a00;
-  color: #ff7a00;
-}
-
-/* ===== H5 响应式布局 ===== */
+/* ===== H5：单列满宽、无左右留白；隐藏右侧支付；启用底栏与抽屉 ===== */
 @media (max-width: 768px) {
-  .paymentPage {
-    background: #fff;
-    padding: 0;
+  .payment-page {
+    background: #fff;     /* 内容区纯白，贴近 VNG */
+    padding: 0;           /* 去掉 PC 上下大间距 */
   }
 
-  .paymentContainer {
-    flex-direction: column;
+  .payment-container {
+    flex-direction: column;     /* 单列 */
     align-items: stretch;
     width: 100%;
-    max-width: none;
+    max-width: none;            /* 取消 1200 限制，避免两侧空白 */
     gap: 16px;
-    padding: 0;
+    padding: 0;                 /* 去除容器 padding，确保满宽 */
     margin: 0;
   }
 
-  .leftColumn,
-  .rightColumn {
+  .left-column,
+  .right-column {
     flex: 1 1 100%;
     width: 100%;
   }
 
-  .sectionBox,
-  .sectionSticky {
+  /* H5 隐藏 PC 右侧支付（改由 Drawer 展示） */
+  .right-column {
+    display: none;
+  }
+
+  /* H5 内容块：去阴影/圆角、加分割带，视觉贴近 VNG */
+  .section-box,
+  .section-sticky {
     border-radius: 0;
     box-shadow: none;
     border-bottom: 8px solid #f3f4f6;
     padding: 16px 12px;
   }
 
-  .sectionHeader {
-    margin-bottom: 10px;
-  }
-
-  .sectionTitle {
-    font-size: 16px;
-  }
-
-  .tabBar {
-    gap: 6px;
-    margin-bottom: 8px;
-  }
-
-  .tabBtn {
-    font-size: 13px;
-    padding: 6px 0;
-  }
-
-  .tabActive {
-    background: #fff6ee;
-  }
-
-  .mobileBottomBar {
+  /* H5 固定底栏 */
+  .mobile-bottom-bar {
     display: flex;
     position: fixed;
-    bottom: 0;
-    left: 0;
+    bottom: 0; left: 0;
     width: 100%;
     background: #fff;
     border-top: 1px solid #eee;
@@ -168,27 +101,39 @@
     padding: 10px 14px;
     z-index: 100;
   }
-
-  .mobileBottomLeft {
+  .mobile-bottom-left {
     display: flex;
     align-items: center;
     gap: 8px;
   }
-
-  .mobileTotalLabel {
+  .mobile-total-label {
     font-weight: 500;
     color: #666;
   }
-
-  .mobileTotalAmount {
+  .mobile-total-amount {
     font-weight: 700;
-    color: #ff7a00;
+    color: #3b82f6;
   }
-
-  .mobileContinueBtn {
-    background: #ff7a00;
+  .mobile-continue-btn {
+    background: #3b82f6;
     border: none;
     border-radius: 8px;
     font-weight: 600;
+  }
+
+  /* H5 抽屉只在移动端显示（PC 强制隐藏，解决你说的“PC 也弹 H5 确认框”的问题） */
+  .mobile-drawer {
+    display: block;
+  }
+}
+
+/* 保险起见：PC 端强制把移动抽屉隐藏（即使被误触发也不会显示） */
+@media (min-width: 769px) {
+  .mobile-drawer {
+    display: none !important;
+  }
+  /* AntD Drawer 外层容器也屏蔽 */
+  :global(.mobile-drawer .ant-drawer-content-wrapper) {
+    display: none !important;
   }
 }

@@ -1,0 +1,289 @@
+:root {
+  --primary: #3b82f6;
+  --primary-600: #2563eb;
+  --primary-light: #60a5fa;
+  --primary-bg: #ebf3ff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --card: #ffffff;
+  --shadow: 0 6px 20px rgba(17, 24, 39, 0.06);
+}
+
+/* ===== 外层卡片 ===== */
+.methodCard {
+  background: var(--card);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.compact {
+  border-radius: 10px;
+  box-shadow: none;
+  padding: 12px;
+}
+
+/* ===== 标题 ===== */
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cardTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+/* ===== 订单清单 ===== */
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.orderEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  color: var(--muted);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+
+/* 单个订单项 */
+.orderItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.thumb {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f3f4f6;
+  flex-shrink: 0;
+}
+
+.itemInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+}
+.itemName {
+  margin: 0;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.itemPrice {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* ====== 数量控件（VNG 风格，一体化边框，Antd Button 版） ====== */
+.qtyWrap {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  background: #fff;
+  height: 34px;
+  padding: 0 4px;
+  gap: 4px;
+  flex-shrink: 0; /* ✅ 不被压缩 */
+}
+
+/* ✅ 覆盖 Antd Button 默认样式，做成扁平白底 */
+.qtyBtn {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 30px !important;
+  height: 30px !important;
+  line-height: 30px !important;
+  padding: 0 !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  color: var(--primary) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.qtyBtn:hover {
+  background: var(--primary-bg) !important;
+}
+
+.priceNum {
+  width: 36px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* 删除按钮（可选） */
+.removeBtn {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.removeBtn:hover {
+  color: var(--primary-600);
+}
+
+/* 展开收起 */
+.moreWrap {
+  display: flex;
+  justify-content: center;
+  margin-top: -2px;
+}
+.moreBtn {
+  border-radius: 999px !important;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  background: #fff !important;
+  font-weight: 600 !important;
+}
+
+/* ===== 支付方式 ===== */
+.sectionBlock {
+  margin-top: 8px;
+}
+.blockTitle {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px 0;
+}
+.methodGroup {
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+}
+.methodRadios {
+  width: 100%;
+}
+.methodItem {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  color: var(--text);
+  background: #fff;
+}
+.methodItem:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.methodActive {
+  border-color: var(--primary) !important;
+  background: var(--primary-bg) !important;
+  color: var(--primary) !important;
+}
+.methodIcon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+/* ===== 合计 ===== */
+.summaryBox {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid var(--border);
+}
+.summaryLabel {
+  color: var(--muted);
+}
+.summaryAmount {
+  color: var(--primary);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* 支付按钮 */
+.payButton {
+  background: linear-gradient(
+    90deg,
+    var(--primary),
+    var(--primary-light)
+  ) !important;
+  border: none !important;
+  border-radius: 10px !important;
+  height: 44px !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  box-shadow: 0 6px 14px rgba(59, 130, 246, 0.28) !important;
+}
+.payButton:hover {
+  opacity: 0.92;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 768px) {
+  .methodCard {
+    border-radius: 0;
+    box-shadow: none;
+    padding: 12px;
+  }
+  .orderItem {
+    grid-template-columns: 52px 1fr auto;
+    padding: 10px;
+  }
+  .thumb {
+    width: 52px;
+    height: 52px;
+  }
+  .qtyWrap {
+    height: 30px;
+  }
+  .qtyBtn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 15px !important;
+  }
+  .priceNum {
+    width: 34px;
+    font-size: 14px;
+  }
+}
