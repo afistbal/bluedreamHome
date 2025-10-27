@@ -8,14 +8,24 @@ import banner2 from "@/assets/war2-banner2.jpg";
 import banner3 from "@/assets/banner3.png";
 
 export default function Home() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const slides = [banner, banner2, banner3];
   const [current, setCurrent] = useState(0);
   const [selectedGame, setSelectedGame] = useState(null);
 
+  // ✅ 点击游戏卡
   const handleSelect = (game) => {
-    setSelectedGame(game);
-    localStorage.setItem("selectedGame", JSON.stringify(game));
+    const saved = localStorage.getItem("selectedGame");
+    const savedGame = saved ? JSON.parse(saved) : null;
+
+    // ✅ 若游戏不同 → 打开登录弹窗（Step 2）
+    if (!savedGame || savedGame.game_id !== game.game_id) {
+      if (window.openLoginModal) {
+        window.openLoginModal(false, game.game_id); // 第二个参数是 gameId
+      } else {
+        console.warn("⚠️ openLoginModal 未定义，请检查 App.jsx");
+      }
+    }
   };
 
   // 自动轮播
@@ -31,6 +41,7 @@ export default function Home() {
     let ticking = false;
     const saved = localStorage.getItem("selectedGame");
     if (saved) setSelectedGame(JSON.parse(saved));
+
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
@@ -42,8 +53,6 @@ export default function Home() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  // const changeLanguage = (lang) => i18n.changeLanguage(lang);
 
   return (
     <div className={styles.homePage}>
@@ -118,12 +127,9 @@ export default function Home() {
                   <img src={game.icon_url} alt={game.name} />
                 </div>
                 <div className={styles.gridTitle}>{game.name}</div>
-                <Link
-                  to={`/payment/${game.game_id}`}
-                  className={`${styles.btn} ${styles.btnPrimary}`}
-                >
+                <button className={`${styles.btn} ${styles.btnPrimary}`}>
                   {t("top_up_now")}
-                </Link>
+                </button>
               </div>
             ))}
           </div>
@@ -180,7 +186,7 @@ export default function Home() {
 
       <div className={styles.dazzlingGradientSection}></div>
 
-      <div class="dazzling-gradient-section"></div>
+      <div className="dazzling-gradient-section"></div>
 
       {/* Footer */}
       <footer className={styles.footer}>

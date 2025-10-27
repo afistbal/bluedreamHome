@@ -1,8 +1,8 @@
+import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer.jsx";
 import Home from "./pages/Home/Home.jsx";
-import UIHome from "./pages/oldHome/Home.jsx";
 import Payment from "./pages/Payment/Payment.jsx";
 import Callback from "./pages/Callback/Callback.jsx";
 import SePayCheckout from "@/pages/Payment/components/SePayCheckout";
@@ -10,35 +10,63 @@ import GlobalMessage from "@/components/GlobalMessage/GlobalMessage";
 import PaymentProcess from "@/pages/Payment/PaymentProcess.jsx";
 import PaySuccess from "@/pages/Payment/PaySuccess.jsx";
 import PayCancel from "@/pages/Payment/PayCancel.jsx";
+import LoginModal from "@/components/LoginModal/index.jsx";
 
 function App() {
   const location = useLocation();
-
-  // ✅ 不需要导航和底部的路径（比如 callback 页）
   const hideLayout = ["/auth/callback"];
-
   const isHideLayout = hideLayout.includes(location.pathname);
+
+  // ✅ 全局管理登录弹窗状态
+  const [loginModalState, setLoginModalState] = useState({
+    visible: false,
+    fromLoginBtn: false,
+    targetGameId: null, // ✅ 新增：目标游戏ID
+  });
+
+  // ✅ 注册全局方法（给 Navbar、Home 调用）
+  window.openLoginModal = (fromLoginBtn = false, gameId = null) => {
+    setLoginModalState({
+      visible: true,
+      fromLoginBtn,
+      targetGameId: gameId,
+    });
+  };
 
   return (
     <>
-      {/* ✅ 只有在非 callback 页时才渲染 Navbar/Footer */}
-      {!isHideLayout && <Navbar />}
-      <GlobalMessage /> {/* 🔥 这里负责初始化全局 message */}
+      {/* ✅ Layout */}
+      {!isHideLayout && (
+        <Navbar onLoginClick={() => window.openLoginModal(true)} />
+      )}
+
+      <GlobalMessage />
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/payment/:id" element={<Payment />} />
-        <Route path="/ui" element={<UIHome />} />
         <Route path="/auth/:provider/callback" element={<Callback />} />
         <Route path="/payment/sepay/:orderId" element={<SePayCheckout />} />
         <Route path="/payment/process" element={<PaymentProcess />} />
-        {/* ✅ 支付成功回调页 */}
-        <Route path="/payment/order/success/:orderId" element={<PaySuccess />} />
-
-        {/* ✅ 支付取消回调页 */}
+        <Route
+          path="/payment/order/success/:orderId"
+          element={<PaySuccess />}
+        />
         <Route path="/payment/order/cancel/:orderId" element={<PayCancel />} />
-        
       </Routes>
+
+      {/* ✅ 全局登录弹窗 */}
+      <LoginModal
+        visible={loginModalState.visible}
+        fromLoginBtn={loginModalState.fromLoginBtn}
+        targetGameId={loginModalState.targetGameId} // ✅ 新增传参
+        onClose={() =>
+          setLoginModalState((prev) => ({ ...prev, visible: false }))
+        }
+        onLoginSuccess={() =>
+          setLoginModalState((prev) => ({ ...prev, visible: false }))
+        }
+      />
 
       {!isHideLayout && <Footer />}
     </>

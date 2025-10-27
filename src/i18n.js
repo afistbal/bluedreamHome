@@ -29,6 +29,10 @@ const resources = {
         login_fail: "Đăng nhập thất bại!",
         apple_fail: "Apple đăng nhập thất bại!",
         all_products: "Một tài khoản cho tất cả sản phẩm VNGGames",
+        invalid_provider: "Không xác định được nguồn đăng nhập!",
+        no_token: "Không tìm thấy mã đăng nhập hợp lệ!",
+        exception: "Quá trình đăng nhập gặp lỗi, vui lòng thử lại!",
+        processing: "Đang xử lý đăng nhập... Vui lòng đợi.",
       },
 
       // ✅ 订单 & 支付
@@ -75,6 +79,11 @@ const resources = {
         invalid_json: "Máy chủ trả về dữ liệu không hợp lệ.",
         loading: "Đang tải...",
       },
+      account: {
+        my_orders: "Đơn hàng của tôi",
+        logout: "Đăng xuất",
+        logout_success: "Đăng xuất thành công!",
+      },
     },
   },
 
@@ -104,6 +113,10 @@ const resources = {
         login_fail: "登录失败！",
         apple_fail: "Apple 登录失败！",
         all_products: "一个账号通行所有 VNGGames 产品",
+        invalid_provider: "无法识别登录来源！",
+        no_token: "未检测到有效登录凭证！",
+        exception: "登录流程异常，请重试！",
+        processing: "正在处理登录，请稍候…",
       },
 
       // ✅ 订单 & 支付
@@ -148,6 +161,11 @@ const resources = {
         server_error: "服务器返回错误。",
         invalid_json: "服务器返回数据无效。",
         loading: "加载中...",
+      },
+      account: {
+        my_orders: "我的订单",
+        logout: "退出登录",
+        logout_success: "退出成功！",
       },
     },
   },

@@ -18,7 +18,12 @@ import { callApi } from "@/utils/api";
 import { allGames } from "@/utils/games";
 import styles from "./LoginModal.module.css";
 
-const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
+const LoginModal = ({
+  visible,
+  onClose,
+  onLoginSuccess,
+  fromLoginBtn = false,
+}) => {
   const { t, i18n } = useTranslation();
   const [selectedGame, setSelectedGame] = useState(null);
   const [step, setStep] = useState(1);
@@ -30,10 +35,18 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
   useEffect(() => {
     if (visible) {
       const saved = localStorage.getItem("selectedGame");
-      if (saved) {
+      const hasSavedGame = !!saved;
+
+      // ✅ 从 Navbar 登录按钮打开 → 强制显示选游戏页
+      if (fromLoginBtn) {
+        setSelectedGame(null);
+        setStep(1);
+      }
+      // ✅ 从其他地方唤起（window.openLoginModal(false)） → 按 localStorage 判断
+      else if (hasSavedGame) {
         const game = JSON.parse(saved);
         setSelectedGame(game);
-        setStep(2); // ✅ 若已有选中游戏则直接跳到登录页
+        setStep(2);
       } else {
         setStep(1);
       }
@@ -44,9 +57,9 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
       }));
       setGames(localizedGames);
     }
-  }, [visible, i18n.language]);
+  }, [visible, i18n.language, fromLoginBtn]);
 
-  // ✅ 选游戏时不再立即写 localStorage，只在登录成功后才写
+  // ✅ 选游戏时不立即保存
   const handleSelectGame = (game) => {
     setSelectedGame(game);
   };
@@ -64,7 +77,7 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
 
   const handleBack = () => setStep(1);
 
-  // ✅ 登录成功时再写入 selectedGame
+  // ✅ 账号密码登录
   const handleAccountLogin = async () => {
     if (!selectedGame) {
       messageApi.warning({
@@ -95,30 +108,33 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
         GameId: selectedGame.game_id,
       });
 
-      if (!res?.success) {
-        messageApi.error({
-          key: "login",
-          content: res?.message || t("login.login_fail"),
-        });
+      if (!res?.success || !res?.data?.PlayerId) {
+        messageApi.error({ key: "login", content: t("login.login_fail") });
         return;
       }
 
       const userData = res.data;
 
-      // ✅ 登录成功后再保存游戏
+      // ✅ 成功后存储
       localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
       localStorage.setItem("user", JSON.stringify(userData));
 
       messageApi.success({ key: "login", content: t("login.login_success") });
+
       onLoginSuccess?.(userData);
       onClose();
+
+      // ✅ 延时刷新页面
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
       console.error("Login error:", err);
       messageApi.error({ key: "login", content: t("login.login_fail") });
     }
   };
 
-  // ✅ 同理：第三方登录时也在成功后写入 selectedGame
+  // ✅ 第三方登录（Apple 例子）
   const handleLogin = async (provider) => {
     if (!selectedGame) {
       messageApi.warning({
@@ -147,24 +163,25 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
         }
 
         const res = await callApi("/api/APILogin/ApLogin", "POST", payload);
-
-        if (!res?.success) {
-          messageApi.error({
-            key: "login",
-            content: res?.message || t("login.login_fail"),
-          });
+        if (!res?.success || !res?.data?.PlayerId) {
+          messageApi.error({ key: "login", content: t("login.login_fail") });
           return;
         }
 
         const userData = res.data;
 
-        // ✅ 登录成功后再保存
         localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
         localStorage.setItem("user", JSON.stringify(userData));
 
         messageApi.success({ key: "login", content: t("login.login_success") });
+
         onLoginSuccess?.(userData);
         onClose();
+
+        // ✅ 延时刷新页面
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } catch (e) {
       messageApi.error({ key: "login", content: t("login.login_fail") });
@@ -282,7 +299,6 @@ const LoginModal = ({ visible, onClose, onLoginSuccess }) => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
-                {/* ✅ 改成 BlueDream 品牌 */}
                 <h2 className={styles.title}>{t("login.btn_login")}</h2>
                 <p className={styles.subtitle}>
                   Một tài khoản cho tất cả sản phẩm <strong>BlueDream</strong>
