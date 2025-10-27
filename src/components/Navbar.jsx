@@ -12,12 +12,10 @@ export default function Navbar() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
-  // 独立实例（H5/上下文安全）
   const [messageApi, messageContextHolder] = message.useMessage();
   const [modal, modalContextHolder] = Modal.useModal();
-  // 组件内 state
-  const [ordersOpen, setOrdersOpen] = useState(false);
 
+  const [ordersOpen, setOrdersOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gameOptions, setGameOptions] = useState([]);
   const [selectedValue, setSelectedValue] = useState();
@@ -29,7 +27,12 @@ export default function Navbar() {
     const timer = setTimeout(() => {
       const localizedGames = allGames.map((g) => ({
         ...g,
-        name: i18n.language === "zh" ? g.name_zh : g.name_vi,
+        name:
+          i18n.language === "zh"
+            ? g.name_zh
+            : i18n.language === "en"
+            ? g.name_en || g.name_vi
+            : g.name_vi,
       }));
       setGameOptions(localizedGames);
       setLoading(false);
@@ -51,38 +54,35 @@ export default function Navbar() {
     return found?.icon_url || null;
   }, [selectedGame]);
 
+  // ✅ 多语言循环切换 zh → vi → en → zh
   const handleLanguageToggle = () => {
-    const next = i18n.language === "zh" ? "vi" : "zh";
+    const current = i18n.language;
+    let next = "zh";
+    if (current === "zh") next = "vi";
+    else if (current === "vi") next = "en";
+    else next = "zh";
     i18n.changeLanguage(next);
     localStorage.setItem("lang", next);
   };
 
-  // 选择游戏逻辑（必须把 game_id 传进弹窗；如果同游戏则直达）
   const handleGameSelect = (value) => {
     const game = gameOptions.find((g) => g.game_id === Number(value));
     if (!game) return;
-
-    // 清 UI value
     setTimeout(() => setSelectedValue(null), 100);
 
     const savedUser = JSON.parse(localStorage.getItem("user") || "null");
-    const savedGame = JSON.parse(
-      localStorage.getItem("selectedGame") || "null"
-    );
+    const savedGame = JSON.parse(localStorage.getItem("selectedGame") || "null");
 
-    // 未登录 → 直接打开登录弹窗 Step2（传 game_id）
     if (!savedUser?.UuId) {
       if (window.openLoginModal) window.openLoginModal(false, game.game_id);
       return;
     }
 
-    // 已登录且当前就是该游戏 → 直达充值页
     if (savedGame && savedGame.game_id === game.game_id) {
       navigate(`/payment/${game.game_id}`);
       return;
     }
 
-    // 已登录但切换到不同游戏 → 确认后打开登录弹窗 Step2（传 game_id）
     modal.confirm({
       title: t("msg.switch_game_title"),
       content: t("msg.switch_game_text"),
@@ -99,9 +99,22 @@ export default function Navbar() {
     if (window.openLoginModal) window.openLoginModal(true);
   };
 
+  // ✅ 根据当前语言显示按钮文字
+  const getLangLabel = () => {
+    switch (i18n.language) {
+      case "zh":
+        return "中文";
+      case "vi":
+        return "Việt";
+      case "en":
+        return "EN";
+      default:
+        return "Việt";
+    }
+  };
+
   return (
     <header className={styles.header}>
-      {/* 放顶层，确保上下文正确 */}
       {messageContextHolder}
       {modalContextHolder}
       <OrdersModal open={ordersOpen} onClose={() => setOrdersOpen(false)} />
@@ -143,13 +156,13 @@ export default function Navbar() {
         </div>
 
         <div className={styles.actionArea}>
-          {/* 国际化切换 */}
+          {/* ✅ 多语言切换按钮 */}
           <Button
             className={styles.langBtn}
             size="small"
             onClick={handleLanguageToggle}
           >
-            {i18n.language === "zh" ? "中文" : "Việt"}
+            {getLangLabel()}
           </Button>
 
           {user?.UuId ? (
