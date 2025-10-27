@@ -124,6 +124,20 @@ const resources = {
           reason: "Nguyên nhân",
         },
       },
+      footer: {
+        brand_em: "BLUE",          // 左侧品牌前半（高亮）
+        brand_text: "DREAM Shop",  // 品牌后半
+        explore: "Khám phá",
+        support: "Hỗ trợ",
+        agency: "Đại lý thẻ Zing",
+        payment_guide: "Hướng dẫn nạp tiền",
+        faq: "Câu hỏi thường gặp",
+        customer_care: "Chăm sóc khách hàng",
+        copyright: "©Copyright",
+        all_rights: "All Rights Reserved",
+        terms: "Điều khoản dịch vụ",
+        privacy: "Chính sách bảo mật"
+      }
     },
   },
 
@@ -247,6 +261,20 @@ const resources = {
           reason: "失败原因",
         },
       },
+      footer: {
+        brand_em: "BLUE",
+        brand_text: "DREAM Shop",
+        explore: "探索",
+        support: "支持",
+        agency: "Zing 卡代理",
+        payment_guide: "充值指南",
+        faq: "常见问题",
+        customer_care: "客户服务",
+        copyright: "©Copyright",
+        all_rights: "保留所有权利",
+        terms: "服务条款",
+        privacy: "隐私政策"
+      }
     },
   },
 };

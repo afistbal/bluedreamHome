@@ -51,32 +51,64 @@
   margin-bottom: 20px;
 }
 
-/* —— Mobile Bottom Bar —— */
-.mobile-bottom-bar {
+/.mobile-bottom-bar {
+  display: flex;
   position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 100;
-  display: none;
-  height: 56px;
-  padding: 0 12px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   background: #fff;
-  border-top: 1px solid rgba(0,0,0,0.08);
-  align-items: center;
+  border-top: 1px solid #e5e7eb;
   justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px; /* ✅ 高度增加 + 内距更宽 */
+  z-index: 100;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.04); /* ✅ 轻微浮层阴影 */
 }
 
-.mobile-bottom-left { display: flex; align-items: baseline; gap: 8px; }
-.mobile-total-label { color: #666; font-weight: 600; }
-.mobile-total-amount { font-weight: 800; color: #3b82f6; }
+.mobile-bottom-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-.mobile-continue-btn { height: 40px; border-radius: 8px; }
+.mobile-total-label {
+  font-weight: 500;
+  color: #444;
+  font-size: 14px;
+}
+
+.mobile-total-amount {
+  font-weight: 700;
+  color: #2563eb;
+  font-size: 15px;
+}
+
+.mobile-continue-btn {
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 10px 22px; /* ✅ 按钮变高匹配整体高度 */
+}
 
 /* 抽屉优化 */
-.mobile-drawer .ant-drawer-header { border-top-left-radius: 12px; border-top-right-radius: 12px; }
-.mobile-drawer .ant-drawer-content { border-top-left-radius: 12px; border-top-right-radius: 12px; }
+.mobile-drawer .ant-drawer-header {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.mobile-drawer .ant-drawer-content {
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
 
 /* 响应式：<= 768 显示底栏，右栏正常隐藏在底栏中展示 */
 @media (max-width: 768px) {
-  .mobile-bottom-bar { display: flex; }
-  .right-column { display: none; } /* PC 右栏在 H5 用 Drawer 显示 */
+  .mobile-bottom-bar {
+    display: flex;
+  }
+  .right-column {
+    display: none;
+  } /* PC 右栏在 H5 用 Drawer 显示 */
 }

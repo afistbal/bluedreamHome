@@ -590,5 +590,6 @@
     radial-gradient(800px 500px at 20% 100%, rgba(59, 130, 246, 0.25) 0%, rgba(59, 130, 246, 0) 70%);
   background-repeat: no-repeat;
   background-attachment: scroll;
+  padding-bottom: 36px;
 }
 

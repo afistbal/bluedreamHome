@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx";
+import Footer from "./components/Footer/Footer.jsx";
 import Home from "./pages/Home/Home.jsx";
 import Payment from "./pages/Payment/Payment.jsx";
 import Callback from "./pages/Callback/Callback.jsx";

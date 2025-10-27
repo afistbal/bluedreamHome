@@ -1,0 +1,114 @@
+.footer {
+  background: #0b0b0c;
+  color: #e5e7eb;
+  padding: 28px 20px 22px;
+  font-size: 14px;
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  align-items: start;
+  gap: 24px;
+}
+
+/* Brand */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  user-select: none;
+}
+.brandEm {
+  color: #ff6a21; /* 参考 VNG 的橙色 */
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+.brandText {
+  color: #f3f4f6;
+  font-weight: 700;
+}
+
+/* Columns (two columns on right) */
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px 48px;
+  justify-items: start;
+}
+.col {}
+.colTitle {
+  color: #cbd5e1;
+  font-weight: 600;
+  margin: 2px 0 10px;
+}
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.list li { margin: 10px 0; }
+
+.link {
+  color: #f3f4f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+.link:hover { text-decoration: underline; }
+
+/* HR line */
+.hr {
+  max-width: 1200px;
+  margin: 18px auto 12px;
+  height: 1px;
+  background: rgba(255,255,255,0.08);
+}
+
+/* Bottom row */
+.bottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+.copy { color: #cbd5e1; }
+.bottomLinks {
+  display: flex;
+  gap: 28px;
+}
+
+/* ====== H5 ====== */
+@media (max-width: 768px) {
+  .inner {
+    grid-template-columns: 1fr;   /* brand on top */
+    gap: 16px;
+  }
+  .brand {
+    font-size: 18px;
+    margin-bottom: 2px;
+  }
+  .cols {
+    grid-template-columns: 1fr 1fr; /* still two columns on mobile */
+    gap: 8px 24px;
+  }
+  .colTitle {
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: #d1d5db;
+  }
+  .list li { margin: 8px 0; }
+  .link { font-size: 14px; font-weight: 700; }
+
+  .hr { margin: 16px auto 10px; }
+
+  .bottom {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .bottomLinks { gap: 20px; }
+}

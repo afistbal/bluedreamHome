@@ -18,28 +18,27 @@ export default function PayResult() {
   const [seconds, setSeconds] = useState(3);
   const [messageApi, contextHolder] = message.useMessage();
 
-  // 从订单列表进入时带上 ?from=orders；带上就不做 3s 自动跳回
+  // ✅ 判断来源与结果类型
   const isFromOrders =
     new URLSearchParams(location.search).get("from") === "orders";
-
-  // 成功/失败严格由路由决定
   const routeIsSuccess = location.pathname.includes("/success");
 
-  // —— 当服务异常时使用的 Mock —— //
+  // ✅ 用户与游戏映射
+  const user = JSON.parse(localStorage.getItem("user") || "null");
+  const orderGameMap = JSON.parse(localStorage.getItem("orderGameMap") || "{}");
+  const selectedGame = JSON.parse(localStorage.getItem("selectedGame") || "{}");
+
+  // ✅ 优先顺序：orderGameMap → selectedGame → 否则跳首页
+  const gameIdFromMap = orderGameMap[orderId] || selectedGame?.game_id || null;
+
+  // ✅ Mock 备用数据
   const mockData = {
     id: "9a3c7c96-b31e-11f0-b21a-a6006ab65aca",
-    customer_id: "CUST_001",
-    order_id: "PAY8768FF477E9D815",
     order_invoice_number: "INV_SEPAY_1761560442",
-    order_status: "CAPTURED",
     order_amount: "5000.00",
     order_currency: "VND",
     order_description: "Payment for order tk1 for INV_SEPAY_1761560442",
-    authentication_status: null,
     created_at: "2025-10-27 17:20:46",
-    updated_at: "2025-10-27 17:21:03",
-    transactions: [],
-    // 可选补充（若你的接口后续补齐会自动覆盖）
     game_name: "Hải Tặc Loạn Đấu",
     server_name: "S1",
     role_id: "30000001004293",
@@ -47,25 +46,19 @@ export default function PayResult() {
     method_text: "VietQR",
   };
 
+  // ✅ 拉取订单详情
   const fetchOrder = async () => {
     try {
-      const res = await callApi(
-        `/api/Sepay/getsepayorder?id=${orderId}`,
-        "GET"
-      );
+      const res = await callApi(`/api/Sepay/getsepayorder?id=${orderId}`, "GET");
       if (res && res.data) {
         setOrder(res.data);
       } else {
-        messageApi.warning(
-          "Không tìm thấy thông tin đơn hàng / 未找到订单信息"
-        );
+        messageApi.warning(t("orders_result.title_fail"));
         setOrder(mockData);
       }
     } catch (err) {
       console.error("❌ Error fetching order:", err);
-      messageApi.info(
-        "🧩 Đang hiển thị dữ liệu mẫu / 使用模拟订单数据"
-      );
+      messageApi.info(t("msg.server_error"));
       setOrder(mockData);
     } finally {
       setLoading(false);
@@ -74,26 +67,42 @@ export default function PayResult() {
 
   useEffect(() => {
     fetchOrder();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [orderId]);
 
-  // 自动跳回 /payment/:gameId（仅当不是从“订单列表”来）
+  // ✅ 登录与映射检查逻辑
   useEffect(() => {
-    if (!isFromOrders && !loading) {
+    if (loading) return;
+
+    // 未登录
+    if (!user) {
+      messageApi.warning(t("login.please_select_game"));
+      setTimeout(() => navigate("/"), 2000);
+      return;
+    }
+
+    // 无映射 + 无selectedGame → 回首页
+    if (!gameIdFromMap) {
+      messageApi.warning(t("orders_result.title_fail"));
+      setTimeout(() => navigate("/"), 2000);
+      return;
+    }
+  }, [loading, user, gameIdFromMap, navigate, t]);
+
+  // ✅ 自动跳转逻辑
+  useEffect(() => {
+    if (!isFromOrders && !loading && user && gameIdFromMap) {
       const timer = setInterval(() => {
         setSeconds((s) => {
           if (s <= 1) {
             clearInterval(timer);
-            const gameId =
-              order?.customer_id || JSON.parse(localStorage.getItem("lastOrder") || "{}")?.game_id || "1";
-            navigate(`/payment/${gameId}`);
+            navigate(`/payment/${gameIdFromMap}`);
           }
           return s - 1;
         });
       }, 1000);
       return () => clearInterval(timer);
     }
-  }, [isFromOrders, loading, order, navigate]);
+  }, [isFromOrders, loading, user, gameIdFromMap, navigate]);
 
   if (loading) {
     return (
@@ -104,19 +113,15 @@ export default function PayResult() {
     );
   }
 
-  // 展示字段准备
+  // ✅ 展示字段准备
   const invoice = order?.order_invoice_number || orderId || "—";
   const payMethod =
     order?.method_text ||
-    (order?.order_description || "")
-      .toLowerCase()
-      .includes("sepay")
+    (order?.order_description || "").toLowerCase().includes("sepay")
       ? "SePay"
-      : (order?.order_description || "")
-          .toLowerCase()
-          .includes("momo")
+      : (order?.order_description || "").toLowerCase().includes("momo")
       ? "MoMo"
-      : order?.order_description?.toLowerCase().includes("zalo")
+      : (order?.order_description || "").toLowerCase().includes("zalo")
       ? "ZaloPay"
       : order?.order_currency
       ? "VietQR"
@@ -129,11 +134,7 @@ export default function PayResult() {
     "vi-VN"
   )} ${order?.order_currency || "VND"}`;
 
-  // 游戏/角色信息（可为空则显示“—”）
-  const gameName =
-    order?.game_name ||
-    JSON.parse(localStorage.getItem("selectedGame") || "{}")?.name ||
-    "—";
+  const gameName = order?.game_name || selectedGame?.name || "—";
   const serverName =
     order?.server_name ||
     JSON.parse(localStorage.getItem("selectedCharacter") || "{}")?.serverName ||
@@ -144,12 +145,10 @@ export default function PayResult() {
   return (
     <div className={styles.page}>
       {contextHolder}
-      {/* 顶部渐变背景 */}
       <div className={styles.hero} />
-
       <div className={styles.container}>
         <div className={styles.card}>
-          {/* 图标 + 标题 */}
+          {/* ✅ 标题 */}
           <div className={styles.headline}>
             {routeIsSuccess ? (
               <CheckCircleFilled className={`${styles.icon} ${styles.success}`} />
@@ -167,7 +166,7 @@ export default function PayResult() {
             </h2>
           </div>
 
-          {/* 上半区：游戏信息 */}
+          {/* ✅ 游戏信息 */}
           <div className={styles.metaGrid}>
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Game</span>
@@ -187,10 +186,9 @@ export default function PayResult() {
             </div>
           </div>
 
-          {/* 分割线 */}
           <div className={styles.divider} />
 
-          {/* 下半区：订单信息 */}
+          {/* ✅ 订单信息 */}
           <div className={styles.infoBox}>
             <div className={styles.row}>
               <span className={styles.label}>
@@ -205,7 +203,9 @@ export default function PayResult() {
               <span className={styles.value}>{payMethod}</span>
             </div>
             <div className={styles.row}>
-              <span className={styles.label}>{t("orders_result.field.time")}</span>
+              <span className={styles.label}>
+                {t("orders_result.field.time")}
+              </span>
               <span className={styles.value}>{timeText} GMT+7</span>
             </div>
             <div className={styles.row}>
@@ -227,13 +227,13 @@ export default function PayResult() {
                   {t("orders_result.field.reason")}
                 </span>
                 <span className={styles.value}>
-                  Giao dịch thất bại / Transaction failed
+                  {t("orders_result.title_fail")}
                 </span>
               </div>
             )}
           </div>
 
-          {/* 底部区域：倒计时 + 按钮 */}
+          {/* ✅ 底部 */}
           <div className={styles.bottomArea}>
             {!isFromOrders && (
               <p className={styles.timer}>
@@ -243,9 +243,7 @@ export default function PayResult() {
             <Button
               type="primary"
               className={styles.actionBtn}
-              onClick={() =>
-                navigate(`/payment/${order?.customer_id || "1"}`)
-              }
+              onClick={() => navigate(`/payment/${gameIdFromMap}`)} // ✅ 只跳正确 game_id
             >
               {routeIsSuccess
                 ? t("orders_result.back_btn")

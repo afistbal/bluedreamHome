@@ -211,66 +211,6 @@ export default function Home() {
       </main>
 
       <div className={styles.dazzlingGradientSection}></div>
-
-      <footer className={styles.footer}>
-        <div className={styles.container}>
-          <div className={styles.footerGrid}>
-            <div>
-              <div className={styles.footerTitle}>{t("quick_links")}</div>
-              <ul className={styles.footerList}>
-                <li>
-                  <Link to="/">{t("nav_home")}</Link>
-                </li>
-                <li>
-                  <a href="#">{t("nav_products")}</a>
-                </li>
-                <li>
-                  <a href="#">{t("nav_news")}</a>
-                </li>
-                <li>
-                  <a href="#">{t("nav_download")}</a>
-                </li>
-                <li>
-                  <a href="#">{t("nav_support")}</a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <div className={styles.footerTitle}>{t("policy")}</div>
-              <ul className={styles.footerList}>
-                <li>
-                  <Link to="/policy?type=privacy">{t("privacy_policy")}</Link>
-                </li>
-                <li>
-                  <Link to="/policy?type=terms">{t("service_terms")}</Link>
-                </li>
-                <li>
-                  <Link to="/policy?type=refund">{t("refund_policy")}</Link>
-                </li>
-                <li>
-                  <Link to="/policy?type=deletion">{t("data_deletion")}</Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <div className={styles.footerTitle}>{t("customer_service")}</div>
-              <ul className={styles.footerList}>
-                <li>Hotline: 1900 0000</li>
-                <li>Email: support@bluedream.vn</li>
-                <li>{t("working_time")}: 09:00–18:00</li>
-              </ul>
-            </div>
-            <div>
-              <div className={styles.footerTitle}>BlueDream</div>
-              <div className={styles.footerNote}>
-                {t("footer_note")}
-                <br />
-                ©Copyright 2025 BlueDream. All Rights Reserved
-              </div>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

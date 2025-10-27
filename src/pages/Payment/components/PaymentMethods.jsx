@@ -9,7 +9,7 @@ export default function PaymentMethods({
   selected = [],
   onAdd,
   onReduce,
-  onRemove,
+  gameId,
   payMethods = [], // 🔹传进来的可能是 [0,1,2]
   totalVnd = 0,
   overTotalLimit = false,
@@ -39,6 +39,11 @@ export default function PaymentMethods({
   const [showAll, setShowAll] = useState(false);
   const visibleItems = !compact && !showAll ? selected.slice(0, 2) : selected;
 
+  function safeCalculate(expr) {
+    if (!/^[0-9+\-*/ ().]+$/.test(expr)) return NaN; // ✅ 防止注入
+    return Function(`"use strict"; return (${expr})`)();
+  }
+
   const handlePay = () => {
     if (payDisabled || totalVnd <= 0 || selected.length === 0) {
       messageApi.warning({
@@ -49,27 +54,19 @@ export default function PaymentMethods({
     }
 
     console.log("selected");
-    // // ✅ 从 selected 中提取出 id 和数量
-    // const productIDs = selected.map((item) => item.id);
-    // const quantities = selected.map((item) => item.qty);
-
-    // // ✅ 拼接支付参数
-    // const query = new URLSearchParams({
-    //   uuid: "tk1",
-    //   gameID: 2,
-    //   serverID: 1,
-    //   productIDs: JSON.stringify(productIDs),
-    //   quantities: JSON.stringify(quantities),
-    //   methodID: method, // 0 / 1 / 2
-    // });
+    // ✅ 从 selected 中提取出 id 和数量
+    const productIDs = selected.map((item) => item.id);
+    const quantities = selected.map((item) => item.qty);
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    const uuid = user?.UuId || user?.uuid || ""; // 兼容字段名不同的情况
 
     // ✅ 拼接支付参数
     const query = new URLSearchParams({
-      uuid: "tk1",
-      gameID: 2,
-      serverID: 1,
-      productIDs: JSON.stringify(["earth_diamond_1"]),
-      quantities: JSON.stringify([1]),
+      uuid,
+      gameID: gameId,
+      serverID: safeCalculate(user?.ServerId),
+      productIDs: JSON.stringify(productIDs),
+      quantities: JSON.stringify(quantities),
       methodID: method, // ✅ 直接传 0 / 1 / 2
     });
 
