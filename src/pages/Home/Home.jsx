@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { Modal } from "antd";
 import styles from "./Home.module.css";
 import { allGames } from "@/utils/games";
 import banner from "@/assets/war2-banner1.jpg";
@@ -9,23 +10,50 @@ import banner3 from "@/assets/banner3.png";
 
 export default function Home() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const slides = [banner, banner2, banner3];
   const [current, setCurrent] = useState(0);
   const [selectedGame, setSelectedGame] = useState(null);
 
-  // ✅ 点击游戏卡
-  const handleSelect = (game) => {
-    const saved = localStorage.getItem("selectedGame");
-    const savedGame = saved ? JSON.parse(saved) : null;
+  // 支持 context 的 modal 实例（H5 OK）
+  const [modal, contextHolder] = Modal.useModal();
 
-    // ✅ 若游戏不同 → 打开登录弹窗（Step 2）
-    if (!savedGame || savedGame.game_id !== game.game_id) {
+  // 点击游戏卡逻辑
+  const handleSelect = (game) => {
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const savedGame = JSON.parse(localStorage.getItem("selectedGame") || "null");
+
+    // 未登录 → 直接 Step2（传 game_id）
+    if (!savedUser?.UuId) {
       if (window.openLoginModal) {
-        window.openLoginModal(false, game.game_id); // 第二个参数是 gameId
+        window.openLoginModal(false, game.game_id);
       } else {
         console.warn("⚠️ openLoginModal 未定义，请检查 App.jsx");
       }
+      return;
     }
+
+    // 已登录 & 与当前相同 → 直达充值页
+    if (savedGame && savedGame.game_id === game.game_id) {
+      navigate(`/payment/${game.game_id}`);
+      return;
+    }
+
+    // 已登录 & 切换不同游戏 → 确认后 Step2（传 game_id）
+    modal.confirm({
+      title: t("msg.switch_game_title") || "切换游戏确认",
+      content:
+        t("msg.switch_game_text") ||
+        "您切换游戏，必须重新登录。确定要切换吗？",
+      okText: t("common.confirm") || "确定",
+      cancelText: t("common.cancel") || "取消",
+      centered: true,
+      onOk: () => {
+        if (window.openLoginModal) {
+          window.openLoginModal(false, game.game_id);
+        }
+      },
+    });
   };
 
   // 自动轮播
@@ -36,7 +64,7 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  // 滚动透明逻辑
+  // 滚动透明逻辑 + 当前选中游戏用于 UI 高亮
   useEffect(() => {
     let ticking = false;
     const saved = localStorage.getItem("selectedGame");
@@ -56,6 +84,9 @@ export default function Home() {
 
   return (
     <div className={styles.homePage}>
+      {/* 🔹 Modal ContextHolder 必须放顶层 */}
+      {contextHolder}
+
       {/* Nav */}
       <nav className={styles.siteNav}>
         <div className={`${styles.container} ${styles.siteNavInner}`}>
@@ -109,7 +140,6 @@ export default function Home() {
 
       {/* Game Cards */}
       <main className={styles.container}>
-        {/* 推荐游戏 */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("recommended_for_you")}</h2>
           <div className={styles.grid}>
@@ -135,11 +165,10 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ✅ Lợi ích khi nạp tại BlueDream */}
+        {/* 优势区 */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>{t("benefits_title")}</h2>
           <div className={styles.benefits}>
-            {/* 1️⃣ 优惠 */}
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
                 src="/src/assets/icon_offers.png"
@@ -151,7 +180,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 2️⃣ 道具 */}
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
                 src="/src/assets/icon_items.png"
@@ -161,7 +189,6 @@ export default function Home() {
               <div className={styles.benefitsTitle}>{t("exclusive_items")}</div>
             </div>
 
-            {/* 3️⃣ 支付 */}
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
                 src="/src/assets/icon_payment.png"
@@ -171,7 +198,6 @@ export default function Home() {
               <div className={styles.benefitsTitle}>{t("direct_payment")}</div>
             </div>
 
-            {/* 4️⃣ 价格 */}
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
                 src="/src/assets/icon_price.png"
@@ -186,9 +212,6 @@ export default function Home() {
 
       <div className={styles.dazzlingGradientSection}></div>
 
-      <div className="dazzling-gradient-section"></div>
-
-      {/* Footer */}
       <footer className={styles.footer}>
         <div className={styles.container}>
           <div className={styles.footerGrid}>

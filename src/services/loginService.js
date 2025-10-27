@@ -133,7 +133,7 @@ export const loginWithFacebook = () => {
     "client_id=" + encodeURIComponent(FACEBOOK_APP_ID) +
     "&redirect_uri=" + encodeURIComponent(FACEBOOK_REDIRECT_URI) +
     "&response_type=token" +
-    "&scope=" + encodeURIComponent("public_profile email") +
+    "&scope=" + encodeURIComponent("public_profile") +
     "&state=" + encodeURIComponent(currentUrl);
 
   console.log("🌍 Facebook OAuth 跳转 →", oauthUrl);
@@ -172,7 +172,7 @@ export const loginWithApple = async () => {
 
     // ✅ 获取游戏信息
     const selectedGame = JSON.parse(localStorage.getItem("selectedGame") || "{}");
-    const GameId = selectedGame?.game_id || 2;
+    const GameId = selectedGame?.game_id;
 
     const payload = { TokenId: token, GameId };
     return payload;

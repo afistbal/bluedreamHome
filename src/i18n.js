@@ -1,11 +1,9 @@
-// src/i18n.js
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 
 const resources = {
   vi: {
     translation: {
-      // ✅ 导航栏
       nav: {
         home: "Trang chủ",
         products: "Sản phẩm",
@@ -15,8 +13,6 @@ const resources = {
         about: "Giới thiệu",
         search_games: "Tìm kiếm trò chơi",
       },
-
-      // ✅ 登录模块
       login: {
         select_game: "Chọn trò chơi",
         please_select_game: "Vui lòng chọn trò chơi để tiếp tục",
@@ -28,14 +24,11 @@ const resources = {
         login_success: "Đăng nhập thành công!",
         login_fail: "Đăng nhập thất bại!",
         apple_fail: "Apple đăng nhập thất bại!",
-        all_products: "Một tài khoản cho tất cả sản phẩm VNGGames",
         invalid_provider: "Không xác định được nguồn đăng nhập!",
         no_token: "Không tìm thấy mã đăng nhập hợp lệ!",
         exception: "Quá trình đăng nhập gặp lỗi, vui lòng thử lại!",
         processing: "Đang xử lý đăng nhập... Vui lòng đợi.",
       },
-
-      // ✅ 订单 & 支付
       orders: {
         title: "Thông tin đơn hàng",
         empty: "Chưa có sản phẩm nào",
@@ -47,20 +40,20 @@ const resources = {
         pay_now: "Thanh toán ngay",
         fail: "Thanh toán thất bại, vui lòng thử lại!",
         success: "Thanh toán thành công!",
+        initializing: "Đang khởi tạo thanh toán...",
+        create_failed: "Không thể khởi tạo đơn hàng!",
+        failed: "Thanh toán thất bại!",
+        redirecting: "Tự động quay lại sau {{sec}} giây...",
       },
       cart: {
         total: "Tổng tiền",
         continue: "Tiếp tục",
         order_info: "Thông tin đơn hàng",
       },
-
-      // ✅ 提示信息
       tips: {
         reach_item_limit: "Bạn đã đạt số lượng tối đa",
         choose_game_first: "Vui lòng chọn trò chơi trước khi tiếp tục!",
       },
-
-      // ✅ 错误提示
       errors: {
         invalid_gameid: "Game ID không hợp lệ",
         no_paymethods: "Không có dữ liệu thanh toán",
@@ -69,27 +62,73 @@ const resources = {
           "Đơn hàng vượt hạn mức thanh toán cho phép. Vui lòng giảm số lượng sản phẩm",
         paymethod_unavailable: "Phương thức thanh toán không khả dụng",
       },
-
-      // ✅ 通用消息
       msg: {
-        please_choose_game: "Vui lòng chọn trò chơi!",
-        please_fill_account: "Vui lòng nhập tài khoản và mật khẩu!",
         connect_error: "Không thể kết nối máy chủ, vui lòng kiểm tra lại mạng.",
         server_error: "Máy chủ trả về lỗi.",
         invalid_json: "Máy chủ trả về dữ liệu không hợp lệ.",
         loading: "Đang tải...",
+        switch_game_title: "Xác nhận chuyển trò chơi",
+        switch_game_text:
+          "Bạn cần đăng nhập lại khi chuyển sang trò chơi khác. Bạn có chắc chắn muốn chuyển không?",
+        please_choose_game: "Vui lòng chọn trò chơi",
+        please_fill_account: "Vui lòng nhập tài khoản và mật khẩu",
       },
       account: {
         my_orders: "Đơn hàng của tôi",
         logout: "Đăng xuất",
         logout_success: "Đăng xuất thành công!",
       },
+      common: { confirm: "Xác nhận", cancel: "Hủy" },
+      character: {
+        server: "Máy chủ",
+        id: "ID nhân vật",
+        name: "Nhân vật",
+      },
+      orders_history: {
+        title: "Lịch sử giao dịch",
+        transaction_id: "Mã giao dịch",
+        type: "Loại giao dịch",
+        status: "Trạng thái",
+        time: "Thời gian",
+        package: "Gói đã mua",
+        method: "Phương thức thanh toán",
+        vnd: "VND",
+        detail: "Chi tiết",
+        result_count: "{{count}} kết quả được tìm thấy",
+        copy_success: "Đã sao chép mã giao dịch",
+        copy_fail: "Không thể sao chép",
+        search_placeholder: "Tìm kiếm mã giao dịch hoặc tên gói...",
+        type_single: "Một vật phẩm",
+        type_multi: "Nhiều vật phẩm",
+        success: "Thành công",
+        failed: "Thất bại",
+        pending: "Đang xử lý",
+        filter: {
+          type: "Loại giao dịch",
+          time: "Thời gian",
+          status: "Trạng thái",
+          method: "Phương thức thanh toán",
+        },
+      },
+      orders_result: {
+        title_success: "Thanh toán thành công",
+        title_fail: "Thanh toán thất bại",
+        back_btn: "Nạp tiếp",
+        retry_btn: "Thanh toán lại",
+        auto_redirect: "Tự động quay lại trong {{seconds}} giây",
+        field: {
+          invoice: "Mã giao dịch",
+          method: "Phương thức thanh toán",
+          amount: "Tổng thanh toán",
+          time: "Thời gian giao dịch",
+          reason: "Nguyên nhân",
+        },
+      },
     },
   },
 
   zh: {
     translation: {
-      // ✅ 导航栏
       nav: {
         home: "首页",
         products: "产品",
@@ -99,8 +138,6 @@ const resources = {
         about: "关于我们",
         search_games: "搜索游戏",
       },
-
-      // ✅ 登录模块
       login: {
         select_game: "选择游戏",
         please_select_game: "请选择游戏后继续",
@@ -112,14 +149,11 @@ const resources = {
         login_success: "登录成功！",
         login_fail: "登录失败！",
         apple_fail: "Apple 登录失败！",
-        all_products: "一个账号通行所有 VNGGames 产品",
         invalid_provider: "无法识别登录来源！",
         no_token: "未检测到有效登录凭证！",
         exception: "登录流程异常，请重试！",
         processing: "正在处理登录，请稍候…",
       },
-
-      // ✅ 订单 & 支付
       orders: {
         title: "订单信息",
         empty: "暂未选择商品",
@@ -131,20 +165,20 @@ const resources = {
         pay_now: "立即支付",
         fail: "支付失败，请重试！",
         success: "支付成功！",
+        initializing: "正在创建支付订单...",
+        create_failed: "无法创建支付订单！",
+        failed: "支付失败！",
+        redirecting: "{{sec}} 秒后将自动返回支付页面...",
       },
       cart: {
         total: "总计",
         continue: "继续",
         order_info: "订单信息",
       },
-
-      // ✅ 提示信息
       tips: {
         reach_item_limit: "已达该商品数量上限",
         choose_game_first: "请先选择游戏后再继续！",
       },
-
-      // ✅ 错误提示
       errors: {
         invalid_gameid: "游戏ID无效",
         no_paymethods: "暂无可用支付方式",
@@ -152,33 +186,76 @@ const resources = {
         over_total_limit: "订单超出允许限额，请减少商品数量",
         paymethod_unavailable: "支付方式不可用",
       },
-
-      // ✅ 通用消息
       msg: {
-        please_choose_game: "请选择游戏！",
-        please_fill_account: "请输入账号和密码！",
         connect_error: "无法连接服务器，请检查网络。",
         server_error: "服务器返回错误。",
         invalid_json: "服务器返回数据无效。",
         loading: "加载中...",
+        switch_game_title: "切换游戏确认",
+        switch_game_text: "您切换游戏，必须重新登录。确定要切换吗？",
+        please_choose_game: "请选择游戏",
+        please_fill_account: "请输入账号和密码",
       },
       account: {
         my_orders: "我的订单",
         logout: "退出登录",
         logout_success: "退出成功！",
       },
+      common: { confirm: "确定", cancel: "取消" },
+      character: {
+        server: "服务器",
+        id: "角色ID",
+        name: "角色名",
+      },
+      orders_history: {
+        title: "订单历史",
+        transaction_id: "交易号",
+        type: "交易类型",
+        status: "状态",
+        time: "时间",
+        package: "购买的礼包",
+        method: "支付方式",
+        vnd: "VND",
+        detail: "详情",
+        result_count: "共找到 {{count}} 条结果",
+        copy_success: "已复制交易号",
+        copy_fail: "复制失败",
+        search_placeholder: "搜索交易号或商品名称...",
+        type_single: "单个商品",
+        type_multi: "多个商品",
+        success: "成功",
+        failed: "失败",
+        pending: "处理中",
+        filter: {
+          type: "交易类型",
+          time: "时间筛选",
+          status: "订单状态",
+          method: "支付方式",
+        },
+      },
+      orders_result: {
+        title_success: "支付成功",
+        title_fail: "支付失败",
+        back_btn: "继续充值",
+        retry_btn: "再次支付",
+        auto_redirect: "{{seconds}} 秒后自动返回",
+        field: {
+          invoice: "交易号",
+          method: "支付方式",
+          amount: "支付金额",
+          time: "交易时间",
+          reason: "失败原因",
+        },
+      },
     },
   },
 };
 
-// ✅ 初始化 i18n
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem("lang") || "vi", // 默认语言从本地存储读取
+  lng: localStorage.getItem("lang") || "vi",
   fallbackLng: "vi",
-  interpolation: {
-    escapeValue: false, // React 已防止 XSS
-  },
+  interpolation: { escapeValue: false },
 });
 
 export default i18n;

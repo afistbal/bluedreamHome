@@ -1,16 +1,22 @@
-// src/components/Navbar.jsx
+// ✅ Navbar.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Button, Select, Dropdown, message } from "antd";
+import { Button, Select, Dropdown, message, Modal } from "antd";
 import { allGames } from "@/utils/games";
 import styles from "./Navbar.module.css";
 import Logo from "@/assets/logo.jpg";
+import OrdersModal from "@/components/OrdersModal/OrdersModal.jsx";
 
 export default function Navbar() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const [messageApi, contextHolder] = message.useMessage();
+
+  // 独立实例（H5/上下文安全）
+  const [messageApi, messageContextHolder] = message.useMessage();
+  const [modal, modalContextHolder] = Modal.useModal();
+  // 组件内 state
+  const [ordersOpen, setOrdersOpen] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [gameOptions, setGameOptions] = useState([]);
@@ -18,7 +24,6 @@ export default function Navbar() {
   const [user, setUser] = useState(null);
   const [selectedGame, setSelectedGame] = useState(null);
 
-  // 初始化
   useEffect(() => {
     setLoading(true);
     const timer = setTimeout(() => {
@@ -32,7 +37,7 @@ export default function Navbar() {
 
     try {
       const u = JSON.parse(localStorage.getItem("user") || "null");
-      if (u?.PlayerId) setUser(u);
+      if (u?.UuId) setUser(u);
       const sg = JSON.parse(localStorage.getItem("selectedGame") || "null");
       if (sg) setSelectedGame(sg);
     } catch {}
@@ -46,55 +51,66 @@ export default function Navbar() {
     return found?.icon_url || null;
   }, [selectedGame]);
 
-  // 打开登录弹窗
-  const handleOpenLogin = () => {
-    if (window.openLoginModal) window.openLoginModal(true);
-    else console.warn("⚠️ openLoginModal 未定义，请检查 App.jsx");
+  const handleLanguageToggle = () => {
+    const next = i18n.language === "zh" ? "vi" : "zh";
+    i18n.changeLanguage(next);
+    localStorage.setItem("lang", next);
   };
 
-  // 选择游戏时唤起登录
+  // 选择游戏逻辑（必须把 game_id 传进弹窗；如果同游戏则直达）
   const handleGameSelect = (value) => {
     const game = gameOptions.find((g) => g.game_id === Number(value));
     if (!game) return;
-    if (window.openLoginModal) window.openLoginModal(false, game.game_id);
+
+    // 清 UI value
     setTimeout(() => setSelectedValue(null), 100);
+
+    const savedUser = JSON.parse(localStorage.getItem("user") || "null");
+    const savedGame = JSON.parse(
+      localStorage.getItem("selectedGame") || "null"
+    );
+
+    // 未登录 → 直接打开登录弹窗 Step2（传 game_id）
+    if (!savedUser?.UuId) {
+      if (window.openLoginModal) window.openLoginModal(false, game.game_id);
+      return;
+    }
+
+    // 已登录且当前就是该游戏 → 直达充值页
+    if (savedGame && savedGame.game_id === game.game_id) {
+      navigate(`/payment/${game.game_id}`);
+      return;
+    }
+
+    // 已登录但切换到不同游戏 → 确认后打开登录弹窗 Step2（传 game_id）
+    modal.confirm({
+      title: t("msg.switch_game_title"),
+      content: t("msg.switch_game_text"),
+      okText: t("common.confirm"),
+      cancelText: t("common.cancel"),
+      centered: true,
+      onOk: () => {
+        if (window.openLoginModal) window.openLoginModal(false, game.game_id);
+      },
+    });
   };
 
-  // ✅ 登出逻辑
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("selectedGame");
-    messageApi.success(t("account.logout_success"));
-    setTimeout(() => {
-      navigate("/");
-      window.location.reload();
-    }, 800);
+  const handleOpenLogin = () => {
+    if (window.openLoginModal) window.openLoginModal(true);
   };
-
-  const menuItems = [
-    {
-      key: "orders",
-      label: t("account.my_orders"),
-      onClick: () => navigate("/orders"),
-    },
-    { type: "divider" },
-    {
-      key: "logout",
-      label: t("account.logout"),
-      onClick: handleLogout,
-    },
-  ];
 
   return (
     <header className={styles.header}>
-      {contextHolder}
+      {/* 放顶层，确保上下文正确 */}
+      {messageContextHolder}
+      {modalContextHolder}
+      <OrdersModal open={ordersOpen} onClose={() => setOrdersOpen(false)} />
+
       <div className={styles.navbarContainer}>
-        {/* 左：Logo */}
         <Link to="/" className={styles.logoArea}>
-          <img src={Logo} alt="BlueDream logo" className={styles.logoImg} />
+          <img src={Logo} alt="BlueDream" className={styles.logoImg} />
         </Link>
 
-        {/* 中：搜索 */}
         <div className={styles.searchArea}>
           <Select
             showSearch
@@ -126,11 +142,38 @@ export default function Navbar() {
           />
         </div>
 
-        {/* 右：登录按钮 / 用户头像 */}
         <div className={styles.actionArea}>
-          {user?.PlayerId ? (
+          {/* 国际化切换 */}
+          <Button
+            className={styles.langBtn}
+            size="small"
+            onClick={handleLanguageToggle}
+          >
+            {i18n.language === "zh" ? "中文" : "Việt"}
+          </Button>
+
+          {user?.UuId ? (
             <Dropdown
-              menu={{ items: menuItems }}
+              menu={{
+                items: [
+                  {
+                    key: "orders",
+                    label: t("account.my_orders"),
+                    onClick: () => setOrdersOpen(true),
+                  },
+                  { type: "divider" },
+                  {
+                    key: "logout",
+                    label: t("account.logout"),
+                    onClick: () => {
+                      localStorage.removeItem("user");
+                      localStorage.removeItem("selectedGame");
+                      messageApi.success(t("account.logout_success"));
+                      setTimeout(() => window.location.reload(), 600);
+                    },
+                  },
+                ],
+              }}
               trigger={["hover"]}
               placement="bottomRight"
             >

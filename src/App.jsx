@@ -8,8 +8,7 @@ import Callback from "./pages/Callback/Callback.jsx";
 import SePayCheckout from "@/pages/Payment/components/SePayCheckout";
 import GlobalMessage from "@/components/GlobalMessage/GlobalMessage";
 import PaymentProcess from "@/pages/Payment/PaymentProcess.jsx";
-import PaySuccess from "@/pages/Payment/PaySuccess.jsx";
-import PayCancel from "@/pages/Payment/PayCancel.jsx";
+import PayResult from "@/pages/Payment/PayResult.jsx";
 import LoginModal from "@/components/LoginModal/index.jsx";
 
 function App() {
@@ -21,7 +20,7 @@ function App() {
   const [loginModalState, setLoginModalState] = useState({
     visible: false,
     fromLoginBtn: false,
-    targetGameId: null, // ✅ 新增：目标游戏ID
+    gameId: null, // ✅ 新增：目标游戏ID
   });
 
   // ✅ 注册全局方法（给 Navbar、Home 调用）
@@ -29,7 +28,7 @@ function App() {
     setLoginModalState({
       visible: true,
       fromLoginBtn,
-      targetGameId: gameId,
+      gameId: gameId,
     });
   };
 
@@ -48,18 +47,15 @@ function App() {
         <Route path="/auth/:provider/callback" element={<Callback />} />
         <Route path="/payment/sepay/:orderId" element={<SePayCheckout />} />
         <Route path="/payment/process" element={<PaymentProcess />} />
-        <Route
-          path="/payment/order/success/:orderId"
-          element={<PaySuccess />}
-        />
-        <Route path="/payment/order/cancel/:orderId" element={<PayCancel />} />
+        <Route path="/payment/order/success/:orderId" element={<PayResult />} />
+        <Route path="/payment/order/cancel/:orderId" element={<PayResult />} />
       </Routes>
 
       {/* ✅ 全局登录弹窗 */}
       <LoginModal
         visible={loginModalState.visible}
         fromLoginBtn={loginModalState.fromLoginBtn}
-        targetGameId={loginModalState.targetGameId} // ✅ 新增传参
+        gameId={loginModalState.gameId} // ✅ 新增传参
         onClose={() =>
           setLoginModalState((prev) => ({ ...prev, visible: false }))
         }

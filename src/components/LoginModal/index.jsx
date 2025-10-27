@@ -23,6 +23,7 @@ const LoginModal = ({
   onClose,
   onLoginSuccess,
   fromLoginBtn = false,
+  gameId = null,
 }) => {
   const { t, i18n } = useTranslation();
   const [selectedGame, setSelectedGame] = useState(null);
@@ -32,44 +33,58 @@ const LoginModal = ({
   const [password, setPassword] = useState("");
   const [games, setGames] = useState([]);
 
+  // 弹窗打开初始化
   useEffect(() => {
     if (visible) {
-      const saved = localStorage.getItem("selectedGame");
-      const hasSavedGame = !!saved;
-
-      // ✅ 从 Navbar 登录按钮打开 → 强制显示选游戏页
-      if (fromLoginBtn) {
-        setSelectedGame(null);
-        setStep(1);
-      }
-      // ✅ 从其他地方唤起（window.openLoginModal(false)） → 按 localStorage 判断
-      else if (hasSavedGame) {
-        const game = JSON.parse(saved);
-        setSelectedGame(game);
-        setStep(2);
-      } else {
-        setStep(1);
-      }
-
-      const localizedGames = allGames.map((g) => ({
+      const localized = allGames.map((g) => ({
         ...g,
         name: i18n.language === "zh" ? g.name_zh : g.name_vi,
       }));
-      setGames(localizedGames);
-    }
-  }, [visible, i18n.language, fromLoginBtn]);
+      setGames(localized);
 
-  // ✅ 选游戏时不立即保存
+      if (fromLoginBtn) {
+        setSelectedGame(null);
+        setStep(1);
+      } else if (gameId) {
+        const matched = localized.find((g) => g.game_id === gameId);
+        if (matched) setSelectedGame(matched);
+        setStep(2);
+      } else {
+        setSelectedGame(null);
+        setStep(1);
+      }
+    } else {
+      // 关闭时清空
+      setSelectedGame(null);
+      setStep(1);
+      setUsername("");
+      setPassword("");
+    }
+  }, [visible, i18n.language, fromLoginBtn, gameId]);
+
+  // 🔑 关键补丁：gameId 变化后，确保直接 Step2（即使弹窗已打开）
+  useEffect(() => {
+    if (!visible || !gameId) return;
+    const localized = allGames.map((g) => ({
+      ...g,
+      name: i18n.language === "zh" ? g.name_zh : g.name_vi,
+    }));
+    const matched = localized.find((g) => g.game_id === gameId);
+    if (matched) {
+      setSelectedGame(matched);
+      setStep(2);
+    }
+    // 仅在 gameId 改变时触发
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameId]);
+
   const handleSelectGame = (game) => {
     setSelectedGame(game);
   };
 
   const handleNext = () => {
     if (!selectedGame) {
-      messageApi.warning({
-        key: "login",
-        content: t("msg.please_choose_game"),
-      });
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
       return;
     }
     setStep(2);
@@ -77,20 +92,13 @@ const LoginModal = ({
 
   const handleBack = () => setStep(1);
 
-  // ✅ 账号密码登录
   const handleAccountLogin = async () => {
-    if (!selectedGame) {
-      messageApi.warning({
-        key: "login",
-        content: t("msg.please_choose_game"),
-      });
+    if (!selectedGame?.game_id) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
       return;
     }
     if (!username || !password) {
-      messageApi.warning({
-        key: "login",
-        content: t("msg.please_fill_account"),
-      });
+      messageApi.warning({ key: "login", content: t("msg.please_fill_account") });
       return;
     }
 
@@ -108,39 +116,29 @@ const LoginModal = ({
         GameId: selectedGame.game_id,
       });
 
-      if (!res?.success || !res?.data?.PlayerId) {
+      if (!res?.success || !res?.data?.UuId) {
         messageApi.error({ key: "login", content: t("login.login_fail") });
         return;
       }
 
       const userData = res.data;
-
-      // ✅ 成功后存储
       localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
       localStorage.setItem("user", JSON.stringify(userData));
 
       messageApi.success({ key: "login", content: t("login.login_success") });
-
       onLoginSuccess?.(userData);
       onClose();
 
-      // ✅ 延时刷新页面
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       console.error("Login error:", err);
       messageApi.error({ key: "login", content: t("login.login_fail") });
     }
   };
 
-  // ✅ 第三方登录（Apple 例子）
   const handleLogin = async (provider) => {
-    if (!selectedGame) {
-      messageApi.warning({
-        key: "login",
-        content: t("msg.please_choose_game"),
-      });
+    if (!selectedGame?.game_id) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
       return;
     }
 
@@ -162,26 +160,25 @@ const LoginModal = ({
           return;
         }
 
-        const res = await callApi("/api/APILogin/ApLogin", "POST", payload);
-        if (!res?.success || !res?.data?.PlayerId) {
+        const res = await callApi("/api/APILogin/ApLogin", "POST", {
+          ...payload,
+          GameId: selectedGame.game_id,
+        });
+
+        if (!res?.success || !res?.data?.UuId) {
           messageApi.error({ key: "login", content: t("login.login_fail") });
           return;
         }
 
         const userData = res.data;
-
         localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
         localStorage.setItem("user", JSON.stringify(userData));
 
         messageApi.success({ key: "login", content: t("login.login_success") });
-
         onLoginSuccess?.(userData);
         onClose();
 
-        // ✅ 延时刷新页面
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+        setTimeout(() => window.location.reload(), 1000);
       }
     } catch (e) {
       messageApi.error({ key: "login", content: t("login.login_fail") });
@@ -199,10 +196,7 @@ const LoginModal = ({
         centered
         width={500}
         className={styles.modalWrapper}
-        destroyOnHidden
-        styles={{
-          body: { padding: 0 },
-        }}
+        styles={{ body: { padding: 0 } }}
       >
         {/* 背景模糊层 */}
         <AnimatePresence>
@@ -231,9 +225,7 @@ const LoginModal = ({
                 {t("login.back_to_game")}
               </Button>
             )}
-            <button className={styles.closeBtn} onClick={onClose}>
-              ✕
-            </button>
+            <button className={styles.closeBtn} onClick={onClose}>✕</button>
           </div>
 
           <AnimatePresence mode="wait">
@@ -247,9 +239,7 @@ const LoginModal = ({
                 transition={{ duration: 0.4, ease: "easeOut" }}
               >
                 <h2 className={styles.title}>{t("login.select_game")}</h2>
-                <p className={styles.subtitle}>
-                  {t("login.please_select_game")}
-                </p>
+                <p className={styles.subtitle}>{t("login.please_select_game")}</p>
 
                 <div className={styles.grid}>
                   {games.map((g) => {
@@ -259,9 +249,7 @@ const LoginModal = ({
                         whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.97 }}
                         key={g.game_id}
-                        className={`${styles.card} ${
-                          active ? styles.active : ""
-                        }`}
+                        className={`${styles.card} ${active ? styles.active : ""}`}
                         onClick={() => handleSelectGame(g)}
                       >
                         <img src={g.icon_url} alt={g.name} />
@@ -306,9 +294,7 @@ const LoginModal = ({
 
                 <input
                   type="text"
-                  placeholder={
-                    i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"
-                  }
+                  placeholder={i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"}
                   className={styles.input}
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
@@ -321,39 +307,23 @@ const LoginModal = ({
                   onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <Button
-                  type="primary"
-                  block
-                  className={styles.loginBtn}
-                  onClick={handleAccountLogin}
-                >
+                <Button type="primary" block className={styles.loginBtn} onClick={handleAccountLogin}>
                   {t("login.btn_login")}
                 </Button>
 
                 <div className={styles.socialRow}>
-                  <button
-                    className={`${styles.social} ${styles.apple}`}
-                    onClick={() => handleLogin("apple")}
-                  >
+                  <button className={`${styles.social} ${styles.apple}`} onClick={() => handleLogin("apple")}>
                     <AppleFilled />
                   </button>
-                  <button
-                    className={`${styles.social} ${styles.facebook}`}
-                    onClick={() => handleLogin("facebook")}
-                  >
+                  <button className={`${styles.social} ${styles.facebook}`} onClick={() => handleLogin("facebook")}>
                     <FacebookFilled />
                   </button>
-                  <button
-                    className={`${styles.social} ${styles.google}`}
-                    onClick={() => handleLogin("google")}
-                  >
+                  <button className={`${styles.social} ${styles.google}`} onClick={() => handleLogin("google")}>
                     <GoogleOutlined />
                   </button>
                 </div>
 
-                <div className={styles.selectedTag}>
-                  🎮 {selectedGame?.name}
-                </div>
+                <div className={styles.selectedTag}>🎮 {selectedGame?.name}</div>
               </motion.div>
             )}
           </AnimatePresence>

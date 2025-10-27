@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Radio, Button, Alert, message } from "antd";
 import { formatVND } from "@/utils/games.js";
 import { useTranslation } from "react-i18next";
@@ -10,38 +10,58 @@ export default function PaymentMethods({
   onAdd,
   onReduce,
   onRemove,
-  payMethods = [],
+  payMethods = [], // 🔹传进来的可能是 [0,1,2]
   totalVnd = 0,
   overTotalLimit = false,
   payDisabled = false,
-  compact = false, // ✅ H5 Drawer 内传入 compact
+  compact = false,
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
 
-  // ✅ 默认支付方式
-  const methods = React.useMemo(() => {
-    if (Array.isArray(payMethods) && payMethods.length > 0) return payMethods;
-    return [
-      { code: "sepay", name: "SePay", icon: "" },
-      { code: "zalopay", name: "ZaloPay", icon: "" },
-    ];
+  // ✅ 枚举映射
+  const PAYMENT_METHOD_MAP = {
+    0: { id: 0, name: "SePay", icon: "/icons/sepay.png" },
+    1: { id: 1, name: "MoMo", icon: "/icons/momo.png" },
+    2: { id: 2, name: "ZaloPay", icon: "/icons/zalopay.png" },
+  };
+
+  // ✅ 映射后的支付方式数组
+  const methods = useMemo(() => {
+    if (!Array.isArray(payMethods)) return [];
+    return payMethods.map((id) => PAYMENT_METHOD_MAP[id]).filter(Boolean);
   }, [payMethods]);
 
-  const [method, setMethod] = React.useState(methods?.[0]?.code || "sepay");
+  const [method, setMethod] = useState(methods?.[0]?.id ?? 0); // ✅ 数字型值
 
-  // ✅ 展开/收起逻辑（仅 PC）
-  const [showAll, setShowAll] = React.useState(false);
-  const isMobileCompact = compact;
-  const visibleItems =
-    !isMobileCompact && !showAll ? selected.slice(0, 2) : selected;
+  // ✅ 展开/收起逻辑
+  const [showAll, setShowAll] = useState(false);
+  const visibleItems = !compact && !showAll ? selected.slice(0, 2) : selected;
 
   const handlePay = () => {
     if (payDisabled || totalVnd <= 0 || selected.length === 0) {
-      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      messageApi.warning({
+        key: "login",
+        content: t("msg.please_choose_game"),
+      });
       return;
     }
+
+    console.log("selected");
+    // // ✅ 从 selected 中提取出 id 和数量
+    // const productIDs = selected.map((item) => item.id);
+    // const quantities = selected.map((item) => item.qty);
+
+    // // ✅ 拼接支付参数
+    // const query = new URLSearchParams({
+    //   uuid: "tk1",
+    //   gameID: 2,
+    //   serverID: 1,
+    //   productIDs: JSON.stringify(productIDs),
+    //   quantities: JSON.stringify(quantities),
+    //   methodID: method, // 0 / 1 / 2
+    // });
 
     // ✅ 拼接支付参数
     const query = new URLSearchParams({
@@ -50,16 +70,16 @@ export default function PaymentMethods({
       serverID: 1,
       productIDs: JSON.stringify(["earth_diamond_1"]),
       quantities: JSON.stringify([1]),
-      methodID: 0,
+      methodID: method, // ✅ 直接传 0 / 1 / 2
     });
 
-    // ✅ 跳转到支付页面
     navigate(`/payment/process?${query.toString()}`);
-    // 留给父层逻辑处理支付
   };
 
   return (
     <div className={`${styles.methodCard} ${compact ? styles.compact : ""}`}>
+      {contextHolder}
+
       {/* ===== 标题 ===== */}
       <div className={styles.cardHeader}>
         <h2 className={styles.cardTitle}>
@@ -100,9 +120,7 @@ export default function PaymentMethods({
                 >
                   -
                 </Button>
-
                 <span className={styles.priceNum}>{item.qty}</span>
-
                 <Button
                   size="small"
                   className={styles.qtyBtn}
@@ -115,28 +133,21 @@ export default function PaymentMethods({
           ))
         )}
       </div>
-      {contextHolder}
 
       {/* ===== 展开/收起 ===== */}
-      {!isMobileCompact && selected.length > 2 && (
+      {!compact && selected.length > 2 && (
         <div className={styles.moreWrap}>
-          {!showAll ? (
-            <Button
-              className={styles.moreBtn}
-              onClick={() => setShowAll(true)}
-              size="small"
-            >
-              {t("orders.show_more") || "Xem thêm"} ({selected.length - 2})
-            </Button>
-          ) : (
-            <Button
-              className={styles.moreBtn}
-              onClick={() => setShowAll(false)}
-              size="small"
-            >
-              {t("orders.collapse") || "Rút gọn"}
-            </Button>
-          )}
+          <Button
+            className={styles.moreBtn}
+            onClick={() => setShowAll(!showAll)}
+            size="small"
+          >
+            {showAll
+              ? t("orders.collapse") || "Rút gọn"
+              : `${t("orders.show_more") || "Xem thêm"} (${
+                  selected.length - 2
+                })`}
+          </Button>
         </div>
       )}
 
@@ -146,32 +157,31 @@ export default function PaymentMethods({
           {t("payments.title") || "Phương thức thanh toán"}
         </h3>
 
-        <div className={styles.methodGroup}>
-          <Radio.Group
-            value={method}
-            onChange={(e) => setMethod(e.target.value)}
-            className={styles.methodRadios}
-          >
-            {methods.map((m) => (
-              <Radio
-                key={m.code}
-                value={m.code}
-                className={`${styles.methodItem} ${
-                  method === m.code ? styles.methodActive : ""
-                }`}
-              >
-                {m.icon ? (
-                  <img
-                    src={m.icon}
-                    alt={m.name}
-                    className={styles.methodIcon}
-                  />
-                ) : null}
-                <span>{m.name}</span>
-              </Radio>
-            ))}
-          </Radio.Group>
-        </div>
+        {methods.length === 0 ? (
+          <div className={styles.empty}>
+            {t("payments.no_methods") || "暂无可用支付方式"}
+          </div>
+        ) : (
+          <div className={styles.methodGroup}>
+            <Radio.Group
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+              className={styles.methodRadios}
+            >
+              {methods.map((m) => (
+                <Radio
+                  key={m.id}
+                  value={m.id}
+                  className={`${styles.methodItem} ${
+                    method === m.id ? styles.methodActive : ""
+                  }`}
+                >
+                  <span>{m.name}</span>
+                </Radio>
+              ))}
+            </Radio.Group>
+          </div>
+        )}
       </div>
 
       {/* ===== 合计 ===== */}

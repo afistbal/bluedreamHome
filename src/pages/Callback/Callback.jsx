@@ -78,7 +78,7 @@ export default function Callback() {
         const res = await callApi(apiUrl, "POST", payload);
         console.log("🌍 回调登录结果:", res);
 
-        if (!res?.success || !res?.data?.PlayerId) {
+        if (!res?.success || !res?.data?.UuId) {
           safeMessage("error", res?.message || t("login.login_fail"));
           return;
         }

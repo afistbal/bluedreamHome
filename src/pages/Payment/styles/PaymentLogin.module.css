@@ -1,0 +1,81 @@
+.loginCard {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #f0f0f0;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+  margin-bottom: 14px;
+}
+
+.loginForm {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.uidInput {
+  flex: 1;
+  min-width: 180px;
+}
+
+.loginButton {
+  min-width: 120px;
+}
+
+.infoBox {
+  background: #fff;
+  border-radius: 10px;
+}
+
+.infoCol {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.label {
+  font-weight: 600;
+  color: #000;
+  font-size: 15px;
+}
+
+.value {
+  color: #333;
+  font-size: 15px;
+}
+
+.serverSelect {
+  min-width: 90px;
+}
+
+/* ✅ 响应式 */
+@media (max-width: 768px) {
+  .loginCard {
+    padding: 16px;
+  }
+
+  .infoCol {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .label {
+    font-size: 14px;
+  }
+
+  .value {
+    font-size: 14px;
+  }
+
+  .serverSelect {
+    width: 100% !important;
+  }
+}
