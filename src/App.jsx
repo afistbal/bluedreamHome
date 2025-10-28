@@ -5,7 +5,6 @@ import Footer from "./components/Footer/Footer.jsx";
 import Home from "./pages/Home/Home.jsx";
 import Payment from "./pages/Payment/Payment.jsx";
 import Callback from "./pages/Callback/Callback.jsx";
-import SePayCheckout from "@/pages/Payment/components/SePayCheckout";
 import GlobalMessage from "@/components/GlobalMessage/GlobalMessage";
 import PaymentProcess from "@/pages/Payment/PaymentProcess.jsx";
 import PayResult from "@/pages/Payment/PayResult.jsx";
@@ -45,7 +44,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/payment/:id" element={<Payment />} />
         <Route path="/auth/:provider/callback" element={<Callback />} />
-        <Route path="/payment/sepay/:orderId" element={<SePayCheckout />} />
         <Route path="/payment/process" element={<PaymentProcess />} />
         <Route path="/payment/order/success/:orderId" element={<PayResult />} />
         <Route path="/payment/order/cancel/:orderId" element={<PayResult />} />

@@ -195,7 +195,7 @@ export default function PaymentMethods({
         block
         size="large"
         className={styles.payButton}
-        disabled={payDisabled || totalVnd <= 0 || selected.length === 0}
+        disabled={payDisabled || totalVnd <= 0 || selected.length === 0 || methods.length === 0}
         onClick={handlePay}
       >
         {t("payments.pay_now") || "Thanh toán ngay"}

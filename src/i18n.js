@@ -44,6 +44,7 @@ const resources = {
         create_failed: "Không thể khởi tạo đơn hàng!",
         failed: "Thanh toán thất bại!",
         redirecting: "Tự động quay lại sau {{sec}} giây...",
+        no_methods: "Hiện không có phương thức thanh toán khả dụng",
       },
       cart: {
         total: "Tổng tiền",
@@ -183,6 +184,7 @@ const resources = {
         create_failed: "无法创建支付订单！",
         failed: "支付失败！",
         redirecting: "{{sec}} 秒后将自动返回支付页面...",
+        no_methods: "无支付方式",
       },
       cart: {
         total: "总计",
@@ -320,6 +322,7 @@ const resources = {
         create_failed: "Unable to create order!",
         failed: "Payment failed!",
         redirecting: "Redirecting in {{sec}} seconds...",
+        no_methods: "no Payment methods",
       },
       cart: {
         total: "Total",

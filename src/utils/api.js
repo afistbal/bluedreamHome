@@ -4,15 +4,14 @@ import { globalMessageApi } from "@/components/GlobalMessage/GlobalMessage";
 import i18n from "@/i18n";
 
 /**
- * 🌐 通用 API 封装（支持国际化 + 全局 message 提示 + 早期调用兼容）
+ * 🌐 API 封装：支持国际化 + 全局 message 提示 + SePay 特殊处理
+ * 自动从 .env 文件加载 BASE_URL
  */
-const currentHost = window.location.hostname;
-
-// ✅ 动态选择后端地址（你可以按需改成固定 ngrok）
 const BASE_URL =
-  currentHost.includes("noncultivatable-nonhedonistically-eleanore.ngrok-free.dev")
-    ? "https://192.168.8.254:7029"
-    : "http://192.168.8.254:5022";
+  import.meta.env.VITE_API_BASE ||
+  "https://underanged-unequine-ignacia.ngrok-free.dev";
+
+console.log("🌍 当前环境:", import.meta.env.MODE, "| BASE_URL:", BASE_URL);
 
 /**
  * 🧩 获取安全 message 实例（确保在 GlobalMessage 未挂载时也能提示）
@@ -81,17 +80,10 @@ export async function callApi(endpoint, method = "GET", body = null) {
       };
     }
 
+    // ✅ SePay 特殊处理
     if (endpoint.toLowerCase().includes("/sepay/")) {
       const text = await res.text();
-      console.log(text);
-
-      // 如果后端返回 form HTML，则直接返回字符串
-      if (text.trim().startsWith("<form")) {
-        // console.log("✅ [SePay HTML form 返回]:", text);
-        return text; // ⚠️ 注意：直接返回字符串
-      }
-
-      // 如果不是 form（例如后端异常返回 JSON），则再尝试解析 JSON
+      if (text.trim().startsWith("<form")) return text;
       try {
         const data = JSON.parse(text);
         return { success: true, data };

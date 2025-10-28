@@ -1,3 +1,4 @@
+// src/pages/Payment/PayResult.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { CheckCircleFilled, CloseCircleFilled } from "@ant-design/icons";
@@ -31,35 +32,33 @@ export default function PayResult() {
   // ✅ 优先顺序：orderGameMap → selectedGame → 否则跳首页
   const gameIdFromMap = orderGameMap[orderId] || selectedGame?.game_id || null;
 
-  // ✅ Mock 备用数据
-  const mockData = {
-    id: "9a3c7c96-b31e-11f0-b21a-a6006ab65aca",
-    order_invoice_number: "INV_SEPAY_1761560442",
-    order_amount: "5000.00",
-    order_currency: "VND",
-    order_description: "Payment for order tk1 for INV_SEPAY_1761560442",
-    created_at: "2025-10-27 17:20:46",
-    game_name: "Hải Tặc Loạn Đấu",
-    server_name: "S1",
-    role_id: "30000001004293",
-    role_name: "Sun",
-    method_text: "VietQR",
-  };
-
-  // ✅ 拉取订单详情
+  // ✅ 拉取订单详情 + 自动补全字段
   const fetchOrder = async () => {
     try {
       const res = await callApi(`/api/Sepay/getsepayorder?id=${orderId}`, "GET");
-      if (res && res.data) {
-        setOrder(res.data);
+
+      if (res && res?.data && res?.data?.data) {
+        const orderData = res.data.data;
+
+        // 从本地缓存取上下文补充字段
+        const selectedGame = JSON.parse(localStorage.getItem("selectedGame") || "{}");
+        const savedCharacter = JSON.parse(localStorage.getItem("selectedCharacter") || "{}");
+
+        const merged = {
+          ...orderData,
+          game_name: selectedGame?.name_vi || selectedGame?.name_zh || "—",
+          server_name: savedCharacter?.serverName || "—",
+          role_id: savedCharacter?.roleId || "—",
+          role_name: savedCharacter?.roleName || "—",
+        };
+
+        setOrder(merged);
       } else {
         messageApi.warning(t("orders_result.title_fail"));
-        setOrder(mockData);
       }
     } catch (err) {
       console.error("❌ Error fetching order:", err);
-      messageApi.info(t("msg.server_error"));
-      setOrder(mockData);
+      messageApi.error(t("msg.server_error"));
     } finally {
       setLoading(false);
     }
@@ -80,7 +79,7 @@ export default function PayResult() {
       return;
     }
 
-    // 无映射 + 无selectedGame → 回首页
+    // 无映射 + 无 selectedGame → 回首页
     if (!gameIdFromMap) {
       messageApi.warning(t("orders_result.title_fail"));
       setTimeout(() => navigate("/"), 2000);
@@ -88,7 +87,7 @@ export default function PayResult() {
     }
   }, [loading, user, gameIdFromMap, navigate, t]);
 
-  // ✅ 自动跳转逻辑
+  // ✅ 自动跳转逻辑（仅非 orders 页来源）
   useEffect(() => {
     if (!isFromOrders && !loading && user && gameIdFromMap) {
       const timer = setInterval(() => {
@@ -117,28 +116,22 @@ export default function PayResult() {
   const invoice = order?.order_invoice_number || orderId || "—";
   const payMethod =
     order?.method_text ||
-    (order?.order_description || "").toLowerCase().includes("sepay")
-      ? "SePay"
-      : (order?.order_description || "").toLowerCase().includes("momo")
-      ? "MoMo"
-      : (order?.order_description || "").toLowerCase().includes("zalo")
-      ? "ZaloPay"
-      : order?.order_currency
-      ? "VietQR"
-      : "—";
+    (/sepay/i.test(order?.order_description || "") ? "SePay"
+      : /momo/i.test(order?.order_description || "") ? "MoMo"
+      : /zalo/i.test(order?.order_description || "") ? "ZaloPay"
+      : order?.order_currency ? "VietQR"
+      : "—");
 
   const timeText = order?.created_at
     ? dayjs(order.created_at).format("HH:mm DD/MM/YYYY")
     : "—";
-  const amountText = `${Number(order?.order_amount || 0).toLocaleString(
-    "vi-VN"
-  )} ${order?.order_currency || "VND"}`;
 
-  const gameName = order?.game_name || selectedGame?.name || "—";
-  const serverName =
-    order?.server_name ||
-    JSON.parse(localStorage.getItem("selectedCharacter") || "{}")?.serverName ||
-    "—";
+  const amountText = `${Number(order?.order_amount || 0).toLocaleString("vi-VN")} ${
+    order?.order_currency || "VND"
+  }`;
+
+  const gameName = order?.game_name || "—";
+  const serverName = order?.server_name || "—";
   const roleId = order?.role_id || "—";
   const roleName = order?.role_name || "—";
 
@@ -243,7 +236,7 @@ export default function PayResult() {
             <Button
               type="primary"
               className={styles.actionBtn}
-              onClick={() => navigate(`/payment/${gameIdFromMap}`)} // ✅ 只跳正确 game_id
+              onClick={() => navigate(`/payment/${gameIdFromMap}`)}
             >
               {routeIsSuccess
                 ? t("orders_result.back_btn")

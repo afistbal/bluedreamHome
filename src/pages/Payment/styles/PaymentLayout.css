@@ -51,7 +51,7 @@
   margin-bottom: 20px;
 }
 
-/.mobile-bottom-bar {
+.mobile-bottom-bar {
   display: flex;
   position: fixed;
   bottom: 0;

@@ -48,7 +48,7 @@ export const loginWithGoogle = () => {
         "response_type=id_token token" + // ✅ 获取 id_token + access_token
         "&client_id=" + encodeURIComponent(GOOGLE_CLIENT_ID) +
         "&redirect_uri=" + encodeURIComponent(GOOGLE_REDIRECT_URI) +
-        "&scope=" + encodeURIComponent("openid email profile") +
+        "&scope=" + encodeURIComponent("openid profile") +
         "&nonce=" + encodeURIComponent(Math.random().toString(36).substring(2)) +
         "&state=" + encodeURIComponent(currentUrl) +
         "&prompt=" + encodeURIComponent("select_account consent");

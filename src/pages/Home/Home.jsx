@@ -7,6 +7,10 @@ import { allGames } from "@/utils/games";
 import banner from "@/assets/war2-banner1.jpg";
 import banner2 from "@/assets/war2-banner2.jpg";
 import banner3 from "@/assets/banner3.png";
+import icon_offers from "@/assets/icon_offers.png";
+import icon_items from "@/assets/icon_items.png";
+import icon_payment from "@/assets/icon_payment.png";
+import icon_price from "@/assets/icon_price.png";
 
 export default function Home() {
   const { t } = useTranslation();
@@ -171,7 +175,7 @@ export default function Home() {
           <div className={styles.benefits}>
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
-                src="/src/assets/icon_offers.png"
+                src={icon_offers}
                 alt="Offers"
                 className={styles.benefitsIcon}
               />
@@ -182,7 +186,7 @@ export default function Home() {
 
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
-                src="/src/assets/icon_items.png"
+                src={icon_items}
                 alt="Items"
                 className={styles.benefitsIcon}
               />
@@ -191,7 +195,7 @@ export default function Home() {
 
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
-                src="/src/assets/icon_payment.png"
+                src={icon_payment}
                 alt="Payment"
                 className={styles.benefitsIcon}
               />
@@ -200,7 +204,7 @@ export default function Home() {
 
             <div className={`${styles.card} ${styles.benefitsItem}`}>
               <img
-                src="/src/assets/icon_price.png"
+                src={icon_price}
                 alt="Price"
                 className={styles.benefitsIcon}
               />
