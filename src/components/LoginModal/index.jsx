@@ -31,6 +31,7 @@ const LoginModal = ({
   const [messageApi, contextHolder] = message.useMessage();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [uuid, setUuid] = useState(""); // ✅ 新增 UUID
   const [games, setGames] = useState([]);
 
   // 弹窗打开初始化
@@ -59,6 +60,7 @@ const LoginModal = ({
       setStep(1);
       setUsername("");
       setPassword("");
+      setUuid("");
     }
   }, [visible, i18n.language, fromLoginBtn, gameId]);
 
@@ -74,8 +76,6 @@ const LoginModal = ({
       setSelectedGame(matched);
       setStep(2);
     }
-    // 仅在 gameId 改变时触发
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameId]);
 
   const handleSelectGame = (game) => {
@@ -92,6 +92,7 @@ const LoginModal = ({
 
   const handleBack = () => setStep(1);
 
+  // ✅ 普通账户登录
   const handleAccountLogin = async () => {
     if (!selectedGame?.game_id) {
       messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
@@ -114,7 +115,7 @@ const LoginModal = ({
         UserName: username,
         PassWord: password,
         GameId: selectedGame.game_id,
-      });
+      }, { noAuth: true });
 
       if (!res?.success || !res?.data?.UuId) {
         messageApi.error({ key: "login", content: t("login.login_fail") });
@@ -136,6 +137,54 @@ const LoginModal = ({
     }
   };
 
+  // ✅ War2 UUID 登录
+  const handleUuidLogin = async () => {
+    if (!selectedGame?.game_id) {
+      messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
+      return;
+    }
+    if (!uuid) {
+      messageApi.warning({
+        key: "login",
+        content: i18n.language === "zh" ? "请输入 UUID" : "Vui lòng nhập UUID",
+      });
+      return;
+    }
+
+    try {
+      messageApi.open({
+        key: "login",
+        type: "loading",
+        content: t("login.logging_in"),
+        duration: 0,
+      });
+
+      const res = await callApi("/api/APILogin/AccountId", "POST", {
+        AccountID: uuid,
+        GameId: selectedGame.game_id,
+      }, { noAuth: true });
+
+      if (!res?.success || !res?.data?.UuId) {
+        messageApi.error({ key: "login", content: t("login.login_fail") });
+        return;
+      }
+
+      const userData = res.data;
+      localStorage.setItem("selectedGame", JSON.stringify(selectedGame));
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      messageApi.success({ key: "login", content: t("login.login_success") });
+      onLoginSuccess?.(userData);
+      onClose();
+
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (err) {
+      console.error("UUID Login error:", err);
+      messageApi.error({ key: "login", content: t("login.login_fail") });
+    }
+  };
+
+  // ✅ 第三方登录
   const handleLogin = async (provider) => {
     if (!selectedGame?.game_id) {
       messageApi.warning({ key: "login", content: t("msg.please_choose_game") });
@@ -163,7 +212,7 @@ const LoginModal = ({
         const res = await callApi("/api/APILogin/ApLogin", "POST", {
           ...payload,
           GameId: selectedGame.game_id,
-        });
+        }, { noAuth: true });
 
         if (!res?.success || !res?.data?.UuId) {
           messageApi.error({ key: "login", content: t("login.login_fail") });
@@ -292,36 +341,64 @@ const LoginModal = ({
                   Một tài khoản cho tất cả sản phẩm <strong>BlueDream</strong>
                 </p>
 
-                <input
-                  type="text"
-                  placeholder={i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"}
-                  className={styles.input}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-                <input
-                  type="password"
-                  placeholder={i18n.language === "zh" ? "密码" : "Mật khẩu"}
-                  className={styles.input}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
+                {/* ✅ War2 专属 UUID 登录 */}
+                {selectedGame?.game_id === 1 ? (
+                  <>
+                    <input
+                      type="text"
+                      placeholder={i18n.language === "zh" ? "请输入 UUID" : "Nhập UUID"}
+                      className={styles.input}
+                      value={uuid}
+                      onChange={(e) => setUuid(e.target.value)}
+                    />
+                    <Button
+                      type="primary"
+                      block
+                      className={styles.loginBtn}
+                      onClick={handleUuidLogin}
+                    >
+                      {t("login.btn_login")}
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <input
+                      type="text"
+                      placeholder={i18n.language === "zh" ? "登录账号" : "Tài khoản đăng nhập"}
+                      className={styles.input}
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                    />
+                    <input
+                      type="password"
+                      placeholder={i18n.language === "zh" ? "密码" : "Mật khẩu"}
+                      className={styles.input}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
 
-                <Button type="primary" block className={styles.loginBtn} onClick={handleAccountLogin}>
-                  {t("login.btn_login")}
-                </Button>
+                    <Button
+                      type="primary"
+                      block
+                      className={styles.loginBtn}
+                      onClick={handleAccountLogin}
+                    >
+                      {t("login.btn_login")}
+                    </Button>
 
-                <div className={styles.socialRow}>
-                  <button className={`${styles.social} ${styles.apple}`} onClick={() => handleLogin("apple")}>
-                    <AppleFilled />
-                  </button>
-                  <button className={`${styles.social} ${styles.facebook}`} onClick={() => handleLogin("facebook")}>
-                    <FacebookFilled />
-                  </button>
-                  <button className={`${styles.social} ${styles.google}`} onClick={() => handleLogin("google")}>
-                    <GoogleOutlined />
-                  </button>
-                </div>
+                    <div className={styles.socialRow}>
+                      <button className={`${styles.social} ${styles.apple}`} onClick={() => handleLogin("apple")}>
+                        <AppleFilled />
+                      </button>
+                      <button className={`${styles.social} ${styles.facebook}`} onClick={() => handleLogin("facebook")}>
+                        <FacebookFilled />
+                      </button>
+                      <button className={`${styles.social} ${styles.google}`} onClick={() => handleLogin("google")}>
+                        <GoogleOutlined />
+                      </button>
+                    </div>
+                  </>
+                )}
 
                 <div className={styles.selectedTag}>🎮 {selectedGame?.name}</div>
               </motion.div>

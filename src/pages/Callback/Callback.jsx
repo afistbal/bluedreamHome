@@ -75,7 +75,7 @@ export default function Callback() {
         const payload = { TokenId, GameId };
         console.log(`🚀 发起 ${normProvider} 登录:`, payload);
 
-        const res = await callApi(apiUrl, "POST", payload);
+        const res = await callApi(apiUrl, "POST", payload, { noAuth: true });
         console.log("🌍 回调登录结果:", res);
 
         if (!res?.success || !res?.data?.UuId) {

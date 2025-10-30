@@ -182,6 +182,7 @@ export default function Navbar() {
                       localStorage.removeItem("user");
                       localStorage.removeItem("selectedGame");
                       messageApi.success(t("account.logout_success"));
+                      navigate('/');
                       setTimeout(() => window.location.reload(), 600);
                     },
                   },

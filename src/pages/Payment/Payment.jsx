@@ -126,33 +126,33 @@ export default function Payment() {
   const openMobileSheet = () => setMobileOpen(true);
   const closeMobileSheet = () => setMobileOpen(false);
 
-  useEffect(() => {
-  if (!user?.PlayerId || !gameId) return;
+//   useEffect(() => {
+//   if (!user?.PlayerId || !gameId) return;
 
-  const fetchAccountInfo = async () => {
-    try {
-      const res = await callApi(
-        "/api/APILogin/AccountId",
-        "POST",
-        {
-          AccountID: user.PlayerId,
-          GameId: Number(gameId),
-        }
-      );
+//   const fetchAccountInfo = async () => {
+//     try {
+//       const res = await callApi(
+//         "/api/APILogin/AccountId",
+//         "POST",
+//         {
+//           AccountID: user.PlayerId,
+//           GameId: Number(gameId),
+//         }
+//       );
 
-      if (res?.success) {
-        console.log("✅ 用户信息：", res.data);
-      } else {
-        messageApi.warning("Không thể lấy thông tin tài khoản"); // 无法获取用户信息
-      }
-    } catch (err) {
-      console.error("❌ 获取账户信息失败:", err);
-      messageApi.error("Lỗi mạng, vui lòng thử lại sau");
-    }
-  };
+//       if (res?.success) {
+//         console.log("✅ 用户信息：", res.data);
+//       } else {
+//         messageApi.warning("Không thể lấy thông tin tài khoản"); // 无法获取用户信息
+//       }
+//     } catch (err) {
+//       console.error("❌ 获取账户信息失败:", err);
+//       messageApi.error("Lỗi mạng, vui lòng thử lại sau");
+//     }
+//   };
 
-  fetchAccountInfo();
-}, [user?.PlayerId, gameId]);
+//   fetchAccountInfo();
+// }, [user?.PlayerId, gameId]);
 
   return (
     <main className={styles["payment-page"]}>

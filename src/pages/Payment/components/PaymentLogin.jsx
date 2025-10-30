@@ -86,7 +86,7 @@ export default function PaymentLogin() {
       PlayerId: "1000003",
       PlayerName: "2+Tk",
       Power: "523340",
-      ServerId: "1+1",
+      ServerId: "1",
       ServerList: [1, 2, 3],
       PayMethods: [0],
     };
